@@ -5,12 +5,10 @@ from pymongo import MongoClient
 from fastapi import FastAPI, HTTPException, Request
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain_openai import ChatOpenAI
 from langchain_mongodb import MongoDBAtlasVectorSearch # test
 from langchain.memory import ConversationBufferMemory 
-from langchain.chains import ConversationalRetrievalChain
-
 
 # Load environment variables from the .env file
 dotenv.load_dotenv()
@@ -50,9 +48,9 @@ vectors = MongoDBAtlasVectorSearch.from_connection_string(
     )
 retriever = vectors.as_retriever(
     # search_type='similarity',
-    # search_kwargs={'k': 15}
-    # search_type='mmr',
-    # search_kwargs={'k': 5, 'lambda_mult': 0.25,}
+    # search_kwargs={'k': 10}
+    search_type='mmr',
+    search_kwargs={'k': 10, 'lambda_mult': 0.25,}
     )
 
 memory = ConversationBufferMemory( 
@@ -62,10 +60,12 @@ memory = ConversationBufferMemory(
 
 llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key=api_key)
 
-prompt_template = """Use these feedback context from citizens to answer and summarize questions about EU laws and initiatives and citizens' opinions. 
-Please be as specific as possible, but don't make up any information that's not from the context. 
+prompt_template = """Use these feedback contexts from citizens to answer and summarize questions about EU laws and initiatives and citizens' opinions. 
+Each context is a paragraph of feedback from a citizen about a specific EU law or initiative topic.
+Some of them are not write in english, use your powerful translation skill to understand them. 
+Please be as specific as possible, but don't make up any information that's not from the context.
 If you don't know an answer, say you don't know. Also you are a friendly chatbot who is always polite.
-{context}
+Contexts:{context}
 Question: {question}
 """
 QA_CHAIN_PROMPT = PromptTemplate(
@@ -75,29 +75,27 @@ QA_CHAIN_PROMPT = PromptTemplate(
 
 #set up the retrieval chain
 
-chain = RetrievalQA.from_chain_type(
-    llm=llm,
-    retriever=retriever,
-    chain_type='stuff',
-    memory=memory,
-    chain_type_kwargs={
-        "prompt": QA_CHAIN_PROMPT,
-        # "memory": memory
-        }
-    )
-
-# chain = ConversationalRetrievalChain.from_llm(
-#     llm=llm, 
-#     retriever=vectors.as_retriever(search_type = 'mmr',
-#                                     search_kwargs={
-#                                             'k': 100, 'lambda_mult': 0.25,
-#                                     }),
-#     memory = memory,
-#     return_source_documents=True,
-#     return_generated_question=True,
-#     combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT}
+# chain = RetrievalQA.from_chain_type(
+#     llm=llm,
+#     retriever=retriever,
+#     chain_type='stuff',
+#     memory=memory,
+#     chain_type_kwargs={
+#         "prompt": QA_CHAIN_PROMPT,
+#         # "memory": memory
+#         }
 #     )
 
+chain = ConversationalRetrievalChain.from_llm(
+    llm=llm, 
+    retriever=vectors.as_retriever(search_type = 'mmr',
+                                    search_kwargs={
+                                            'k': 30, 'lambda_mult': 0.6,
+                                    }),
+    memory = memory,
+    # return_source_documents=True,
+    combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT}
+    )
 
 @app.post("/query")
 async def get_feedback(request: Request):
@@ -106,8 +104,10 @@ async def get_feedback(request: Request):
         query = data.get("query")
         if not query:
             raise HTTPException(status_code=400, detail="Query parameter is required.")
+        
         # get the results from the output
-        response = chain.invoke(input={'query': query})['result']
+        response = chain.run({"question": query})
+        # response = chain.invoke(input={'query': query})['result']
         # print(memory.buffer)
         return {"response": response}
 

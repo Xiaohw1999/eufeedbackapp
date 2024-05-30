@@ -1,10 +1,8 @@
 # get documentId from feedback_info.json,  generate attachments.json
 # download pdf with the url https://ec.europa.eu/info/law/better-regulation/api/download/{documentId}
 
-import requests
 import json
 import os
-import time
 
 # get documentId from feedback_info.json
 def get_attachment_list(file_path):
@@ -18,7 +16,7 @@ def get_attachment_list(file_path):
                 if 'attachments' in feedback:
                     for attachment in feedback['attachments']:
                         attachment_info = {
-                            'fileName': attachment.get('fileName'),
+                            'fileName': attachment.get('ersFileName'),
                             'documentId': attachment.get('documentId')
                         }
                         attachment_list.append({

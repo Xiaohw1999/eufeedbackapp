@@ -1,8 +1,8 @@
 [
     {
-        "id": 14087,
+        "id": 14081,
         "status": "ACTIVE",
-        "short_title": "List of recognised control authorities and control bodies for the import of organic products compliant with EU rules"
+        "short_title": "Streamlining and improvement of price notifications for certain fruit and vegetables by Member States "
     },
     {
         "id": 12970,
@@ -18,6 +18,26 @@
         "id": 12782,
         "status": "ACTIVE",
         "short_title": "Information and promotion measures for agricultural and food products in the internal market and in non-EU countries"
+    },
+    {
+        "id": 14280,
+        "status": "ACTIVE",
+        "short_title": "Simplification of the requirements as regards geo-tagged pictures"
+    },
+    {
+        "id": 14264,
+        "status": "ACTIVE",
+        "short_title": "List of recognised control authorities and control bodies for the import of organic products compliant with EU rules"
+    },
+    {
+        "id": 14247,
+        "status": "ACTIVE",
+        "short_title": "Import into the Union of high-risk organic and in-conversion products"
+    },
+    {
+        "id": 14239,
+        "status": "ACTIVE",
+        "short_title": "Update of list of recognised third countries and control authorities and control bodies for import of organic products"
     },
     {
         "id": 14233,
@@ -90,11 +110,6 @@
         "short_title": "Adjustments after three years of notification obligations, in particular on prices along the food supply chain"
     },
     {
-        "id": 14081,
-        "status": "ACTIVE",
-        "short_title": "Streamlining and improvement of price notifications for certain fruit and vegetables by Member States "
-    },
-    {
         "id": 14070,
         "status": "ACTIVE",
         "short_title": "Amendment of some rules applicable to the reference quantity requirement"
@@ -108,11 +123,6 @@
         "id": 14024,
         "status": "ACTIVE",
         "short_title": "Amendment of the list of products and substances authorised in organic production"
-    },
-    {
-        "id": 14023,
-        "status": "ACTIVE",
-        "short_title": "Clarifications on the rules regarding the versions of the organic production logo of the European Union"
     },
     {
         "id": 13984,
@@ -260,6 +270,21 @@
         "short_title": "Proposal for a regulation of EP and Council fixing the adjustment rate of financial discipline for financial year 2018"
     },
     {
+        "id": 14023,
+        "status": "ACTIVE",
+        "short_title": "Clarifications on the rules regarding the versions of the organic production logo of the European Union"
+    },
+    {
+        "id": 14087,
+        "status": "ACTIVE",
+        "short_title": "List of recognised control authorities and control bodies for the import of organic products compliant with EU rules"
+    },
+    {
+        "id": 13584,
+        "status": "ACTIVE",
+        "short_title": "Review of egg marketing standards"
+    },
+    {
         "id": 13983,
         "status": "ACTIVE",
         "short_title": "Farm Sustainability Data Network (FSDN) – compiling data on farm sustainability"
@@ -340,14 +365,9 @@
         "short_title": "Marking of eggs on farm as general rule"
     },
     {
-        "id": 13588,
+        "id": 13589,
         "status": "ACTIVE",
         "short_title": "Revised marketing standards for fresh fruit and vegetables, bananas, nuts, dried fruit and pulses"
-    },
-    {
-        "id": 13585,
-        "status": "ACTIVE",
-        "short_title": "Review of egg marketing standards"
     },
     {
         "id": 13588,
@@ -575,9 +595,9 @@
         "short_title": "Protection of Geographical Indications in the food sector (delegating rules)"
     },
     {
-        "id": 13254,
+        "id": 13354,
         "status": "ACTIVE",
-        "short_title": "Protection of geographical indications in the food sector (implementing rules)"
+        "short_title": "EU school scheme derogation from rules on on-the-spot checks in school year 2021/2022 due to Covid-19"
     },
     {
         "id": 13354,
@@ -695,9 +715,9 @@
         "short_title": "Abolition of provisions on amounts of security, period of validity for export licences for rice"
     },
     {
-        "id": 12955,
+        "id": 12747,
         "status": "ACTIVE",
-        "short_title": "Abolition of export licence obligation for rice"
+        "short_title": "Spirit drinks: definition of allusions"
     },
     {
         "id": 12955,
@@ -725,9 +745,9 @@
         "short_title": "Labelling of alcoholic beverages (compound terms)"
     },
     {
-        "id": 12653,
+        "id": 12182,
         "status": "ACTIVE",
-        "short_title": "Labelling of alcoholic beverages (allusions)"
+        "short_title": "Trade rules for organic production (supplementing)"
     },
     {
         "id": 12182,

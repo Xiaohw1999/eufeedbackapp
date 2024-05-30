@@ -1,0 +1,17 @@
+char len distribution of Feedback column in mongodb, histogram or something like that. ****done
+
+If documents are very long then think about how to split them best (chunksize 1000 char or more?)
+
+metadata: project/law name, date
+
+share the github repo, write a readme document.
+
+check embeddings use same during embedding generation and query ****done
+
+activate return documents  **** done
+
+host on streamlit cloud
+
+scrape data from every topic (if too costly just write logic and push to db when cost question is answered)
+
+write logic to include pdfs in database

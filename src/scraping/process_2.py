@@ -1,3 +1,9 @@
+"""
+type: INIT_PLANNED // IMPACT_ASSESS_INCEP: Impact Assessment Inception // OPC launched: Open Public Consultation // PROP_REG: Proposal Regulation,
+      Roadmap // SWD: staff working document // REG_IMPL_DRAFT: Regulation Implementation Draft//REG_IMPL // REG_DEL_DRAFT: Regulation Delegated Draft // REG_DEL
+
+stage: PLANNING_WORKFLOW // ISC_WORKFLOW: Inter-Service Consultation Workflow // ADOPTION_WORKFLOW
+"""
 # get p-id
 
 import requests

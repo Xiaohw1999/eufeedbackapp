@@ -12,7 +12,7 @@ def generate_embeddings(text):
     This will be used to vectorize data and user input for interactions with Azure OpenAI.
     '''
     text = text.replace("\n", " ")
-    response = client.embeddings.create(input=[text], model='text-embedding-3-small')
+    response = client.embeddings.create(input=[text], model='text-embedding-3-small') 
     print('Done')
     return response.data[0].embedding
 

@@ -9,6 +9,11 @@ from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain_openai import ChatOpenAI
 from langchain_mongodb import MongoDBAtlasVectorSearch # test
 from langchain.memory import ConversationBufferMemory 
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables from the .env file
 dotenv.load_dotenv()
@@ -35,12 +40,10 @@ if not api_key:
 
 # Set up embeddings, vectors, and memory for the retrieval chain
 print("Setting up embeddings, vectors, and memory...")
-embeddings = OpenAIEmbeddings(openai_api_key=api_key)
-vectors = MongoDBAtlasVectorSearch.from_connection_string(
-    "mongodb+srv://{}:{}@cluster0.9tj38oe.mongodb.net/".format(
-            ATLAS_USER, ATLAS_TOKEN),
-    f"{db_name}.{collection_name}",
-    # collection=collection, 
+embeddings = OpenAIEmbeddings(openai_api_key=api_key, 
+                              model="text-embedding-ada-002") # define embeddings to text-embedding-3-small
+vectors = MongoDBAtlasVectorSearch(
+    collection=collection, 
     index_name='embedded_index',
     embedding=embeddings, 
     text_key='Feedback',
@@ -50,12 +53,13 @@ retriever = vectors.as_retriever(
     # search_type='similarity',
     # search_kwargs={'k': 10}
     search_type='mmr',
-    search_kwargs={'k': 10, 'lambda_mult': 0.25,}
+    search_kwargs={'k': 10, 'lambda_mult': 0.6,}
     )
 
 memory = ConversationBufferMemory( 
     memory_key='chat_history', 
     return_messages=True, 
+    output_key='answer'
     ) 
 
 llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key=api_key)
@@ -74,7 +78,6 @@ QA_CHAIN_PROMPT = PromptTemplate(
     )
 
 #set up the retrieval chain
-
 # chain = RetrievalQA.from_chain_type(
 #     llm=llm,
 #     retriever=retriever,
@@ -88,13 +91,11 @@ QA_CHAIN_PROMPT = PromptTemplate(
 
 chain = ConversationalRetrievalChain.from_llm(
     llm=llm, 
-    retriever=vectors.as_retriever(search_type = 'mmr',
-                                    search_kwargs={
-                                            'k': 30, 'lambda_mult': 0.6,
-                                    }),
+    retriever=retriever,
     memory = memory,
-    # return_source_documents=True,
-    combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT}
+    return_source_documents=True,
+    combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
+    output_key='answer'
     )
 
 @app.post("/query")
@@ -104,14 +105,26 @@ async def get_feedback(request: Request):
         query = data.get("query")
         if not query:
             raise HTTPException(status_code=400, detail="Query parameter is required.")
+        # Log the received query
+        logger.info(f"Received query: {query}")
         
         # get the results from the output
-        response = chain.run({"question": query})
+        # response = chain.run({"question": query})
         # response = chain.invoke(input={'query': query})['result']
         # print(memory.buffer)
-        return {"response": response}
+        response = chain.invoke({"question": query})
+        
+        # Log the raw response for debugging
+        # logger.info(f"Raw response: {response}")
+
+        answer = response.get('answer', 'No answer found')
+        source_documents = response.get('source_documents', [])
+        sources = [{"text": doc.page_content} for doc in source_documents]
+        
+        return {"response": answer, "sources": sources}
 
     except Exception as e:
+        logger.error(f"Error processing request: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 #solely for test & debug

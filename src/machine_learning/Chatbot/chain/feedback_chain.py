@@ -53,7 +53,7 @@ retriever = vectors.as_retriever(
     # search_type='similarity',
     # search_kwargs={'k': 10}
     search_type='mmr',
-    search_kwargs={'k': 10, 'lambda_mult': 0.6,}
+    search_kwargs={'k': 15, 'lambda_mult': 0.6,}
     )
 
 memory = ConversationBufferMemory( 
@@ -64,10 +64,10 @@ memory = ConversationBufferMemory(
 
 llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key=api_key)
 
-prompt_template = """Use these feedback contexts from citizens to answer and summarize questions about EU laws and initiatives and citizens' opinions. 
+prompt_template = """Use information in these contexts to answer questions. 
 Each context is a paragraph of feedback from a citizen about a specific EU law or initiative topic.
 Some of them are not write in english, use your powerful translation skill to understand them. 
-Please be as specific as possible, but don't make up any information that's not from the context.
+Please answer as detailed as possible, but do not make up information that does not belong in the context.
 If you don't know an answer, say you don't know. Also you are a friendly chatbot who is always polite.
 Contexts:{context}
 Question: {question}

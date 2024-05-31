@@ -7,20 +7,20 @@ This repository is a project to build a Q&A web application according to EU poli
 
 SRC
 ├── data
-│ └── json and csv files scraped from the "Have Your Say" website grouped by different policy topics.
+│   └── json and csv files scraped from the "Have Your Say" website grouped by different policy topics.
 ├── database
-│ └── code for connecting to the database and storing the data.
+│   └── code for connecting to the database and storing the data.
 ├── download
-│ └── pdf (attachments) files scraped from the "Have Your Say" website.
+│   └── pdf (attachments) files scraped from the "Have Your Say" website.
 ├── frontend
-│ └── (frontend code here)
+│   └── (frontend code here)
 ├── machine_learning
-│ ├── Chatbot
-│ │ └── a chatbot based on LangChain and OpenAI, deployed on Streamlit.
-│ └── DataPreprocessing
-│ └── data distribution analysis, data cleaning, and embedding with OpenAI embedding.
+│   ├── Chatbot
+│   │   └── a chatbot based on LangChain and OpenAI, deployed on Streamlit.
+│   └── DataPreprocessing
+│       └── data distribution analysis, data cleaning, and embedding with OpenAI embedding.
 └── scraping
-└── code for scraping data and pdf files from the "Have Your Say" website.
+    └── code for scraping data and pdf files from the "Have Your Say" website.
 
 ## Scraping Logic
 

@@ -15,11 +15,13 @@ async def fetch_data(session, url, params=None, semaphore=None, timeout=10):
             print(f'ClientOSError for URL: {url}')
             return 'no data'
 
+# Pipline 1: get initiatives id
 async def get_init_id(topic, size, language, concurrency=5):
     start_time = time.time()
     output_path = os.path.join(SRC_DIR, 'data', topic)
     file_path = os.path.join(output_path, 'initiatives_id.json')
     
+    # return list of ids if file exists
     if os.path.exists(file_path):
         print(f'{file_path} already exists, skipping get_init_id.')
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -41,10 +43,13 @@ async def get_init_id(topic, size, language, concurrency=5):
     
     if not os.path.exists(output_path):
         os.makedirs(output_path)
+        
+    # set up semaphore to limit concurrency
     semaphore = asyncio.Semaphore(concurrency)
-    
+    # set up retry client with exponential backoff
     retry_options = ExponentialRetry(attempts=5)
     
+    # run the fetch_data function with the retry client
     async with RetryClient(raise_for_status=False, retry_options=retry_options) as session:
         while True:
             params['page'] = page  # update page number
@@ -73,10 +78,12 @@ async def get_init_id(topic, size, language, concurrency=5):
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(info, f, ensure_ascii=False, indent=4)
         print(f'{topic} initiatives_id.json successfully processed')
+        
     end_time = time.time()
     print(f'{topic} initiatives_id.json processing time: {end_time - start_time} seconds')
     return id_list
 
+# Pipline 2: get publication id
 async def get_publication_id(id_list, topic, concurrency=5):
     start_time = time.time()
     output_path = os.path.join(SRC_DIR, 'data', topic)
@@ -134,6 +141,7 @@ async def get_publication_id(id_list, topic, concurrency=5):
                 frontendstage.append(frontEndStage)
                 totalFeedback.append(total_Feedback)
             info_big.append({'id': id, 'info': info_small})
+            # use totalFeedback to filter out initiatives with no feedback in next steps
             pubid.append({'id': id, 'publicationId': publication_ids, 'frontEndStage': frontendstage, 'totalFeedback': totalFeedback})
             print(f'{id} done')
             await asyncio.sleep(0.3)
@@ -146,6 +154,7 @@ async def get_publication_id(id_list, topic, concurrency=5):
     print(f'{topic} p_id.json processing time: {end_time - start_time} seconds')
     return pubid
 
+# Pipline3: get feedback information
 async def get_feedback_info(pubid, topic, concurrency=5):
     start_time = time.time()
     output_path = os.path.join(SRC_DIR, 'data', topic)
@@ -172,6 +181,7 @@ async def get_feedback_info(pubid, topic, concurrency=5):
             frontendstage = item['frontEndStage']
             totalFeedback = item['totalFeedback']
             for i, pub_id in enumerate(publicationId):
+                # set a threshold for the number of feedbacks
                 if totalFeedback[i] == 0 or totalFeedback[i] > 2000:
                     new_dic = {
                         'id': id,
@@ -184,6 +194,7 @@ async def get_feedback_info(pubid, topic, concurrency=5):
                     continue
                 
                 page_number = 0
+                # get feedback information,depends on situation
                 while True:
                     url = feedback_info_url.format(pub_id, page_number)
                     data = await fetch_data(session, url, semaphore=semaphore)
@@ -261,10 +272,11 @@ if __name__ == "__main__":
     import asyncio
     from aiohttp_retry import RetryClient, ExponentialRetry
     from aiohttp.client_exceptions import ClientOSError
+    
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
     sys.path.append(project_root)
     from configLoader import config
+    
     SRC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     topic_list = config['topics']
-    # url_initiatives_id = config['urls']['initiatives_id']
     asyncio.run(main(topic_list))

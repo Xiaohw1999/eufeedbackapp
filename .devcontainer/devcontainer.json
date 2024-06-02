@@ -1,0 +1,12 @@
+{
+    "name": "Python Dev Container",
+    "dockerFile": "Dockerfile",
+    "forwardPorts": [8000, 8001],
+    "remoteEnv": {
+      "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
+      "ATLAS_TOKEN": "${{ secrets.ATLAS_TOKEN }}",
+      "ATLAS_USER": "${{ secrets.ATLAS_USER }}",
+      "CHATBOT_URL": "${{ secrets.CHATBOT_URL }}"
+    },
+    "postCreateCommand": "./start_services.sh"
+  }

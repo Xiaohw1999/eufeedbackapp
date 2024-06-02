@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 
 def str_to_list(collection):
     for document in collection.find({}):
-        if isinstance(document['Embedding'], str):
-            embedding = json.loads(document['Embedding'])
-            collection.update_one({'_id': document['_id']}, {'$set': {'Embedding': embedding}})
+        if isinstance(document['embedding'], str):
+            embedding = json.loads(document['embedding'])
+            collection.update_one({'_id': document['_id']}, {'$set': {'embedding': embedding}})
 
     print("Completed updating embeddings.")
     
@@ -28,14 +28,14 @@ def main():
     load_dotenv()
     topic = 'AGRI'
     SRC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    file_path = os.path.join(SRC_DIR, 'data', topic, 'embedding_data.csv')
+    file_path = os.path.join(SRC_DIR, 'data', topic, 'embedded_data.csv')
     username = os.getenv('ATLAS_USER')
     password = os.getenv('ATLAS_TOKEN')
 
     uri = f"mongodb+srv://{username}:{password}@cluster0.9tj38oe.mongodb.net/<database>?retryWrites=true&w=majority"
     client = pymongo.MongoClient(uri)
     db = client['citizen_feedback']
-    collection = db['embedded_data']
+    collection = db['AGRI_embedded_data']
 
     try:
         import_data_to_mongodb(file_path, collection)

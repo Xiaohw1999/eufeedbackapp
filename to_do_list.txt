@@ -10,8 +10,12 @@ check embeddings use same during embedding generation and query ****done
 
 activate return documents  **** done
 
-host on streamlit cloud
+host on streamlit cloud **** done
 
 scrape data from every topic (if too costly just write logic and push to db when cost question is answered) ****done
 
 write logic to include pdfs in database
+
+embedding
+
+host api

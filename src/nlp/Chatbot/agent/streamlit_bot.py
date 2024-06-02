@@ -72,4 +72,5 @@ if prompt := st.chat_input("What do you want to know?"):
             "sources": sources,
         }
     )
-# streamlit run D:/visualstudiocode/project/eufeedbackapp/src/machine_learning/Chatbot/agent/streamlit_bot.py
+# streamlit run D:/visualstudiocode/project/eufeedbackapp/src/nlp/Chatbot/agent/streamlit_bot.py
+# https://eu-feedback-enhancer.streamlit.app/

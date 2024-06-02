@@ -30,7 +30,7 @@ client = MongoClient(
             ATLAS_USER, ATLAS_TOKEN)
 )
 db_name = "citizen_feedback"
-collection_name = "embedded_data"
+collection_name = "AGRI_embedded_data"
 collection = client[db_name][collection_name]
 
 # Check for the OpenAI API key
@@ -44,10 +44,10 @@ embeddings = OpenAIEmbeddings(openai_api_key=api_key,
                               model="text-embedding-ada-002") # define embeddings to text-embedding-3-small
 vectors = MongoDBAtlasVectorSearch(
     collection=collection, 
-    index_name='embedded_index',
+    index_name='AGRI_index',
     embedding=embeddings, 
-    text_key='Feedback',
-    embedding_key='Embedding'
+    text_key='combined',
+    embedding_key='embedding'
     )
 retriever = vectors.as_retriever(
     # search_type='similarity',
@@ -64,7 +64,7 @@ memory = ConversationBufferMemory(
 
 llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key=api_key)
 
-prompt_template = """Use information in these contexts to answer questions. 
+prompt_template = """Use information in these contexts to answer and summarize questions. 
 Each context is a paragraph of feedback from a citizen about a specific EU law or initiative topic.
 Some of them are not write in english, use your powerful translation skill to understand them. 
 Please answer as detailed as possible, but do not make up information that does not belong in the context.
@@ -113,13 +113,15 @@ async def get_feedback(request: Request):
         # response = chain.invoke(input={'query': query})['result']
         # print(memory.buffer)
         response = chain.invoke({"question": query})
-        
+        print(response)
         # Log the raw response for debugging
         # logger.info(f"Raw response: {response}")
 
         answer = response.get('answer', 'No answer found')
         source_documents = response.get('source_documents', [])
+        print(source_documents)
         sources = [{"text": doc.page_content} for doc in source_documents]
+        print(sources)
         
         return {"response": answer, "sources": sources}
 

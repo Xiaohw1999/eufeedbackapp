@@ -4,11 +4,11 @@ FROM python:3.11
 WORKDIR /workspace
 
 # copy requirements.txt and install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /workspace/
+RUN pip install --no-cache-dir -r /workspace/requirements.txt
 
 # copy all files and folders
-COPY . .
+COPY . /workspace/
 
 # expose neccessary ports
 EXPOSE 8000

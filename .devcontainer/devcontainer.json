@@ -1,6 +1,6 @@
 {
   "name": "FastAPI and Streamlit Dev Container",
-  "dockerFile": "Dockerfile",
+  "dockerFile": ".devcontainer/Dockerfile",
   "appPort": [
     "8000:8000",
     "8501:8501"

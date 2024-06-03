@@ -7,12 +7,16 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain_openai import ChatOpenAI
-from langchain_mongodb import MongoDBAtlasVectorSearch
-from langchain.memory import ConversationBufferMemory
+from langchain_mongodb import MongoDBAtlasVectorSearch # test
+from langchain.memory import ConversationBufferMemory 
 import logging
+import sys
+
+# 设置默认编码为 utf-8
+sys.stdout.reconfigure(encoding='utf-8')
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, encoding='utf-8')
 logger = logging.getLogger(__name__)
 
 # Load environment variables from the .env file
@@ -24,10 +28,10 @@ app = FastAPI()
 # Get MongoDB Atlas credentials from environment variables
 ATLAS_TOKEN = os.environ["ATLAS_TOKEN"]
 ATLAS_USER = os.environ["ATLAS_USER"]
-
 # Initialize MongoDB Connection
 client = MongoClient(
-    "mongodb+srv://{}:{}@cluster0.9tj38oe.mongodb.net/".format(ATLAS_USER, ATLAS_TOKEN)
+    "mongodb+srv://{}:{}@cluster0.9tj38oe.mongodb.net/".format(
+            ATLAS_USER, ATLAS_TOKEN)
 )
 db_name = "citizen_feedback"
 collection_name = "AGRI_embedded_data"
@@ -40,49 +44,52 @@ if not api_key:
 
 # Set up embeddings, vectors, and memory for the retrieval chain
 print("Setting up embeddings, vectors, and memory...")
-embeddings = OpenAIEmbeddings(openai_api_key=api_key, model="text-embedding-ada-002")
+embeddings = OpenAIEmbeddings(openai_api_key=api_key, 
+                              model="text-embedding-ada-002") # define embeddings to text-embedding-3-small
 vectors = MongoDBAtlasVectorSearch(
-    collection=collection,
+    collection=collection, 
     index_name='AGRI_index',
-    embedding=embeddings,
+    embedding=embeddings, 
     text_key='combined',
     embedding_key='embedding'
-)
-
+    )
 retriever = vectors.as_retriever(
+    # search_type='similarity',
+    # search_kwargs={'k': 10}
     search_type='mmr',
     search_kwargs={'k': 15, 'lambda_mult': 0.6,}
-)
+    )
 
-memory = ConversationBufferMemory(
-    memory_key='chat_history',
-    return_messages=True,
+memory = ConversationBufferMemory( 
+    memory_key='chat_history', 
+    return_messages=True, 
     output_key='answer'
-)
+    ) 
 
 llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key=api_key)
 
 prompt_template = """Use information in these contexts to answer and summarize questions. 
 Each context is a paragraph of feedback from a citizen about a specific EU law or initiative topic.
-Some of them are not written in English, use your powerful translation skills to understand them. 
+Some of them are not write in english, use your powerful translation skill to understand them. 
 Please answer as detailed as possible, but do not make up information that does not belong in the context.
-If you don't know an answer, say you don't know. Also, you are a friendly chatbot who is always polite.
+If you don't know an answer, say you don't know. Also you are a friendly chatbot who is always polite.
 Contexts:{context}
 Question: {question}
 """
 QA_CHAIN_PROMPT = PromptTemplate(
     input_variables=["context", "question"],
     template=prompt_template,
-)
+    )
 
+#set up the retrieval chain
 chain = ConversationalRetrievalChain.from_llm(
-    llm=llm,
+    llm=llm, 
     retriever=retriever,
-    memory=memory,
+    memory = memory,
     return_source_documents=True,
     combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
     output_key='answer'
-)
+    )
 
 @app.post("/query")
 async def get_feedback(request: Request):
@@ -99,7 +106,7 @@ async def get_feedback(request: Request):
         response = chain.invoke({"question": query})
         
         # Log the raw response for debugging
-        logger.info(f"Raw response: {response}")
+        # logger.info(f"Raw response: {response}")
 
         answer = response.get('answer', 'No answer found')
         source_documents = response.get('source_documents', [])
@@ -111,12 +118,16 @@ async def get_feedback(request: Request):
         logger.error(f"Error processing request: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+#solely for test & debug
 @app.get("/test")
 def test_endpoint():
+    print("Test endpoint called!")
     return {"message": "Test successful"}
 
+# Run the FastAPI app using uvicorn
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
     
     # uvicorn feedback_chain:app --reload
+    

@@ -69,13 +69,5 @@ if prompt := st.chat_input("What do you want to know?"):
         }
     )
 
-# Run Streamlit app
-if __name__ == "__main__":
-    st._is_running_with_streamlit = True
-    from streamlit.web import cli as stcli
-    import sys
-    sys.argv = ["streamlit", "run", "src/nlp/Chatbot/agent/streamlit_bot.py"]
-    sys.exit(stcli.main())
-
 # streamlit run D:/visualstudiocode/project/eufeedbackapp/src/nlp/Chatbot/agent/streamlit_bot.py
 # https://eu-feedback-enhancer.streamlit.app/

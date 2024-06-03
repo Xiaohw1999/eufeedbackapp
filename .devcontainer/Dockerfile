@@ -7,8 +7,14 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app/
 
+# Change directory context to the parent folder to access the requirements.txt
+WORKDIR /app/.devcontainer/../
+
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+# Set the working directory back to /app
+WORKDIR /app
 
 # Expose the necessary ports
 EXPOSE 8000

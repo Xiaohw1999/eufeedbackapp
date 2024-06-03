@@ -5,16 +5,13 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY . /app/
-
-# Change directory context to the parent folder to access the requirements.txt
-WORKDIR /app/.devcontainer/../
+COPY .devcontainer/requirements.txt /app/requirements.txt
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+RUN pip install --trusted-host pypi.python.org -r /app/requirements.txt
 
-# Set the working directory back to /app
-WORKDIR /app
+# Copy the current directory contents into the container at /app
+COPY . /app/
 
 # Expose the necessary ports
 EXPOSE 8000

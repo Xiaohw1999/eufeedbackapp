@@ -1,5 +1,14 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.11-slim
+FROM python:3.10
+
+# Install the latest version of Node.js
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends nodejs && \
+    apt-get install -y bash &&\
+    npm install -g npm@latest && \
+    npm install -g yarn && \
+    npm install -g pnpm && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /app

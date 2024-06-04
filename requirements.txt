@@ -1,12 +1,13 @@
-python==3.11
 fastapi
 uvicorn
 python-dotenv
 pymongo
 openai
 langchain-openai
+langchain_openai
 langchain-core
 langchain-mongodb
 langchain
 streamlit
 simsimd==3.7.7
+pandas

@@ -1,6 +1,6 @@
 {
   "name": "FastAPI and Streamlit Dev Container",
-  "dockerFile": ".devcontainer/Dockerfile",
+  "dockerFile": "fastapi_streamlit.dockerfile",
   "appPort": [
     "8000:8000",
     "8501:8501"
@@ -9,7 +9,7 @@
     8000,
     8501
   ],
-  "postCreateCommand": "./start_service.sh",
+  "postCreateCommand": "/app/start_service.sh",
   "remoteUser": "vscode",
   "features": {
     "ghcr.io/devcontainers/features/python:1": {}
@@ -29,6 +29,7 @@
     "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
     "ATLAS_TOKEN": "${{ secrets.ATLAS_TOKEN }}",
     "ATLAS_USER": "${{ secrets.ATLAS_USER }}",
-    "CHATBOT_URL": "${{ secrets.CHATBOT_URL }}"
+    "CHATBOT_URL": "https://${CODESPACE_NAME}-8000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}/query"
   }
 }
+

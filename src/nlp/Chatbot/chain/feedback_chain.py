@@ -9,6 +9,7 @@ from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain_openai import ChatOpenAI
 from langchain_mongodb import MongoDBAtlasVectorSearch # test
 from langchain.memory import ConversationBufferMemory 
+from fastapi.middleware.cors import CORSMiddleware
 import logging
 import sys
 
@@ -24,6 +25,13 @@ dotenv.load_dotenv()
 
 # Initialize FastAPI app
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Get MongoDB Atlas credentials from environment variables
 ATLAS_TOKEN = os.environ["ATLAS_TOKEN"]
@@ -127,7 +135,7 @@ def test_endpoint():
 # Run the FastAPI app using uvicorn
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
     
     # uvicorn feedback_chain:app --reload
     

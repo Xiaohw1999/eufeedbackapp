@@ -53,19 +53,25 @@ if not api_key:
 # Set up embeddings, vectors, and memory for the retrieval chain
 print("Setting up embeddings, vectors, and memory...")
 embeddings = OpenAIEmbeddings(openai_api_key=api_key, 
-                              model="text-embedding-ada-002") # define embeddings to text-embedding-3-small
+                              model="text-embedding-3-small") # define embeddings to text-embedding-3-small
 vectors = MongoDBAtlasVectorSearch(
     collection=collection, 
-    index_name='AGRI_index',
+    index_name='AGRI_vector_search',
     embedding=embeddings, 
     text_key='combined',
     embedding_key='embedding'
     )
+
+'''set up mmr method'''
+# retriever = vectors.as_retriever(
+#     search_type='mmr',
+#     search_kwargs={'k': 5, 'lambda_mult': 0.1,}
+#     )
+
+'''set up similarity method'''
 retriever = vectors.as_retriever(
-    # search_type='similarity',
-    # search_kwargs={'k': 10}
-    search_type='mmr',
-    search_kwargs={'k': 15, 'lambda_mult': 0.6,}
+    search_type='similarity',
+    search_kwargs={'k': 5}
     )
 
 memory = ConversationBufferMemory( 
@@ -76,12 +82,18 @@ memory = ConversationBufferMemory(
 
 llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key=api_key)
 
-prompt_template = """Use information in these contexts to answer and summarize questions. 
-Each context is a paragraph of feedback from a citizen about a specific EU law or initiative topic.
-Some of them are not write in english, use your powerful translation skill to understand them. 
-Please answer as detailed as possible, but do not make up information that does not belong in the context.
-If you don't know an answer, say you don't know. Also you are a friendly chatbot who is always polite.
-Contexts:{context}
+prompt_template = """You are a helpful assistant providing detailed analysis and summaries of citizen feedback on EU laws and initiatives. Some feedback may not be in English, so use your translation skills to understand them. Please answer in a friendly and natural manner, just like a normal conversation. If you don't know an answer, say you don't know.
+
+Using the information from the context given to you, but do not make up information that is not in the context, provide your answer as detailed and concise as possible.
+For all feedbacks in the given context which is relevant to the given question, answer with the below information in a natural way.
+
+- The type of user or organization: from context['UserType']
+- The country of the feedback provider: from context['Country']
+- A detailed and concrete summary of the feedback: from context['Content'] and context['Title']
+- An analysis of all feedback, including any common themes or notable points
+
+Contexts:
+{context}
 Question: {question}
 """
 QA_CHAIN_PROMPT = PromptTemplate(
@@ -89,15 +101,24 @@ QA_CHAIN_PROMPT = PromptTemplate(
     template=prompt_template,
     )
 
-#set up the retrieval chain
-chain = ConversationalRetrievalChain.from_llm(
-    llm=llm, 
+'''set up the retrieval chain with ConversationalRetrievalChain'''
+# chain = ConversationalRetrievalChain.from_llm(
+#     llm=llm, 
+#     retriever=retriever,
+#     # memory = memory,
+#     return_source_documents=True,
+#     combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
+#     output_key='answer'
+#     )
+
+'''set up the retrieval chain with RetrievalQA'''
+qa_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
     retriever=retriever,
-    memory = memory,
     return_source_documents=True,
-    combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
-    output_key='answer'
-    )
+    chain_type_kwargs={"prompt": QA_CHAIN_PROMPT},
+)
 
 @app.post("/query")
 async def get_feedback(request: Request):
@@ -111,15 +132,21 @@ async def get_feedback(request: Request):
         logger.info(f"Received query: {query}")
         
         # Get the results from the output
-        response = chain.invoke({"question": query})
+        
+        '''get response use ConversationalRetrievalChain'''
+        # response = chain.invoke({"question": query, "chat_history": []})
+        # answer = response.get('answer', 'No answer found')
+        
+        '''get response use qa chain'''
+        response = qa_chain.invoke({"query": query})
+        answer = response.get('result', 'No answer found')
         
         # Log the raw response for debugging
         # logger.info(f"Raw response: {response}")
 
-        answer = response.get('answer', 'No answer found')
         source_documents = response.get('source_documents', [])
         sources = [{"text": doc.page_content} for doc in source_documents]
-        
+        print(sources[0])
         return {"response": answer, "sources": sources}
 
     except Exception as e:

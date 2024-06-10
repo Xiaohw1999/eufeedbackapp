@@ -1,8 +1,8 @@
 char len distribution of Feedback column in mongodb, histogram or something like that. ****done
 
-If documents are very long then think about how to split them best (chunksize 1000 char or more?) 
+If documents are very long then think about how to split them best (chunksize 1000 char or more?) ****done
 
-metadata: project/law name, date
+metadata: project/law name, date ****done
 
 share the github repo, write a readme document. ****done
 
@@ -14,8 +14,20 @@ host on streamlit cloud **** done
 
 scrape data from every topic (if too costly just write logic and push to db when cost question is answered) ****done
 
+embedding ****done
+
+host api ****done
+
+*****************6/2*******************
+
+test deployed streamlit app
+
+change prompt template use a format with person organization, country....
+
+EC2 instance for fastapi ****done http://16.171.132.28/query
+
+elastic beanstalk for fastapi
+
+use react to build new ui for app, figma
+
 write logic to include pdfs in database
-
-embedding
-
-host api

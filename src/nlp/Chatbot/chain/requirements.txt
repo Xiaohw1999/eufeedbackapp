@@ -8,4 +8,6 @@ langchain-core
 langchain-mongodb
 langchain
 streamlit
+pypdf
+faiss-cpu
 simsimd==3.7.7

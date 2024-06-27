@@ -1,5 +1,5 @@
 '''
-initiatives id url = 'https://ec.europa.eu/info/law/better-regulation/brpapi/searchInitiatives?topic=AGRI&size=100&language=EN' 
+initiatives id url = 'https://ec.europa.eu/info/law/better-regulation/brpapi/searchInitiatives?topic=AGRI&size=10&language=EN' 
 e.g. topic = 'AGRI' (Agriculture and rural development) size, page
 
 get initiative id and title

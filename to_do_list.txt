@@ -20,9 +20,9 @@ host api ****done
 
 *****************6/2*******************
 
-test deployed streamlit app
+test deployed streamlit app ****done
 
-change prompt template use a format with person organization, country....
+change prompt template use a format with person organization, country.... ****done
 
 EC2 instance for fastapi ****done http://16.171.132.28/query
 

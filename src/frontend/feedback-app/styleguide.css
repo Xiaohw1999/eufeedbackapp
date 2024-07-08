@@ -1,0 +1,30 @@
+:root {
+  --subtitle-1-font-family: "Anonymous Pro", Helvetica;
+  --subtitle-1-font-size: 20px;
+  --subtitle-1-font-style: normal;
+  --subtitle-1-font-weight: 400;
+  --subtitle-1-letter-spacing: 0px;
+  --subtitle-1-line-height: normal;
+  --text-1-font-family: "Anonymous Pro", Helvetica;
+  --text-1-font-size: 16px;
+  --text-1-font-style: normal;
+  --text-1-font-weight: 400;
+  --text-1-letter-spacing: 0px;
+  --text-1-line-height: normal;
+  --title-1-font-family: "Anonymous Pro", Helvetica;
+  --title-1-font-size: 48px;
+  --title-1-font-style: normal;
+  --title-1-font-weight: 700;
+  --title-1-letter-spacing: 0px;
+  --title-1-line-height: normal;
+  --white-32: rgba(255, 255, 255, 0.32);
+  --white-36: rgba(255, 255, 255, 0.36);
+  --white-6: rgba(255, 255, 255, 0.06);
+  --white-12: rgba(255, 255, 255, 0.12);
+  --white-64: rgba(255, 255, 255, 0.64);
+  --white-48: rgba(255, 255, 255, 0.48);
+  --white-40: rgba(255, 255, 255, 0.40);
+  --black: rgba(43, 44, 51, 1);
+  --black-2: rgb(73, 76, 95);
+  --gray-1: rgba(81, 81, 81, 1);
+}

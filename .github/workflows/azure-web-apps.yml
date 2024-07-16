@@ -32,7 +32,7 @@ jobs:
       - name: Zip the build output
         run: |
           cd src/frontend/feedback-app/dist
-          zip -r ../build.zip .
+          zip -r ../../build.zip .
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
@@ -47,11 +47,11 @@ jobs:
 
       - name: Unzip artifact
         run: |
-          unzip build-zip/build.zip -d dist
+          unzip build-zip -d dist
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'citizen-feedback-enhancer'
+          app-name: 'citizen-feedback-enhancer'  # 替换为你的 Azure Web App 名称
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: dist

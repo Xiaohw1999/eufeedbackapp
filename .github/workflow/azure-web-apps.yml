@@ -1,0 +1,35 @@
+name: Build and Deploy React App to Azure Web App
+
+on:
+  push:
+    branches:
+      - main  # 或者你用于部署的分支
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: |
+          cd src/frontend/feedback-app
+          npm install
+
+      - name: Build the app
+        run: |
+          cd src/frontend/feedback-app
+          npm run build
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'citizen-feedback-enhancer'  # 替换为你的 Azure Web App 名称
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: src/frontend/feedback-app/dist

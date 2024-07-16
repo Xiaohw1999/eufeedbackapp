@@ -8,6 +8,7 @@ const useChatMessages = () => {
   const [startedChat, setStartedChat] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [sources, setSources] = useState([]);
 
   const handleSend = async (inputValue, setInputValue) => {
     if (inputValue.trim() !== "") {
@@ -26,6 +27,7 @@ const useChatMessages = () => {
 
         const responseMessage = { type: "bot", text: res.data.response };
         setMessages(prevMessages => [...prevMessages, responseMessage]);
+        setSources(res.data.sources || []);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Error fetching data. Please try again.");
@@ -50,6 +52,7 @@ const useChatMessages = () => {
 
       const responseMessage = { type: "bot", text: res.data.response };
       setMessages(prevMessages => [...prevMessages, responseMessage]);
+      setSources(res.data.sources || []);
     } catch (error) {
       console.error("Error fetching data:", error);
       setError("Error fetching data. Please try again.");
@@ -65,6 +68,7 @@ const useChatMessages = () => {
     handleSuggestionClick,
     loading,
     error,
+    sources
   };
 };
 

@@ -1,10 +1,12 @@
+// build interface for chatting 
+
 import React from "react";
 import { VuesaxBulkMenu1 } from "../../icons/VuesaxBulkMenu1";
-import { AiIcon } from "../../icons/AiIcon";
 import { VuesaxTwotoneMicrophone1 } from "../../icons/VuesaxTwotoneMicrophone1";
 import { OutlineArrowCircleUp } from "../../icons/OutlineArrowCircleUp";
 import "./style.css";
 import { RiRobot2Line } from "react-icons/ri";
+import SourceContainer from "../SourceContainer/SourceContainer";
 
 const ChatContainer = ({ 
   inputValue, 
@@ -15,7 +17,8 @@ const ChatContainer = ({
   textareaRef, 
   messages,
   loading,
-  error
+  error,
+  sources
 }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -25,29 +28,28 @@ const ChatContainer = ({
   return (
     <div className="chat">
       <div className="top">
-        <div className="navigation-bar">
-          <VuesaxBulkMenu1 className="vuesax-bulk-menu"/>
-        </div>
-        <div className="containers">
-          <div className="search-bar">
-            <div className="search-bar-content">
-              <AiIcon className="icon-instance-node" color="url(#paint0_linear_8_232)" />
-              <textarea
-                ref={textareaRef}
-                value={inputValue}
-                onChange={handleInputChange}
-                className="text-wrapper-2"
-                placeholder="Tell me something about..."
-                rows={1}
-              />
-            </div>
-            <button onClick={handleVoiceInput} className="voice-button">
-              <VuesaxTwotoneMicrophone1 className="icon-instance-node" />
-            </button>
-            <button onClick={handleSubmit} className="send-button">
-              <OutlineArrowCircleUp className="outline-arrow-circle-up" color='var(--black)' />
-            </button>
+        <div className="search-bar">
+          <div className="search-bar-content">
+            <textarea
+              ref={textareaRef}
+              value={inputValue}
+              onChange={handleInputChange}
+              className="text-wrapper-2"
+              placeholder="Tell me something about..."
+              rows={1}
+            />
           </div>
+          <button onClick={handleVoiceInput} className="voice-button">
+            <VuesaxTwotoneMicrophone1 className="icon-instance-node" />
+          </button>
+          <button onClick={handleSubmit} className="send-button">
+            <OutlineArrowCircleUp className="outline-arrow-circle-up" color='var(--black)' />
+          </button>
+        </div>
+      </div>
+      <div className="main-content">
+        <div className="left-content"></div>
+        <div className="chat-content">
           <div className="messages-container">
             <div className="messages-content">
                 {messages.map((message, index) => (
@@ -78,6 +80,9 @@ const ChatContainer = ({
                 )}
             </div>
           </div>
+        </div>
+        <div className="right-content">
+          <SourceContainer sources={sources} />
         </div>
       </div>
     </div>

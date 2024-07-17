@@ -19,29 +19,20 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install dependencies and build
         run: |
           cd src/frontend/feedback-app
           npm install
-
-      - name: Build the app
-        run: |
-          cd src/frontend/feedback-app
           npm run build
-
-      - name: List build output
-        run: |
-          ls -la src/frontend/feedback-app/dist
 
       - name: Archive production artifacts
         run: |
-          cd src/frontend/feedback-app/dist
-          zip -r ../../dist.zip .
-        working-directory: src/frontend/feedback-app
+          zip -r ${GITHUB_WORKSPACE}/dist.zip ${GITHUB_WORKSPACE}/src/frontend/feedback-app/dist
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'citizen-feedback-enhancer'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ github.workspace }}/dist.zip
+          package: ${GITHUB_WORKSPACE}/dist.zip
+

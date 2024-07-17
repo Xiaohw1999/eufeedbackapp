@@ -27,6 +27,7 @@ jobs:
 
       - name: Archive production artifacts
         run: |
+          cd src/frontent/feedback-app/dist
           zip -r dist.zip .
 
       - name: Deploy to Azure Web App

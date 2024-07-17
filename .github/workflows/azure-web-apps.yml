@@ -31,8 +31,9 @@ jobs:
 
       - name: Zip the build output
         run: |
-          cd src/frontend/feedback-app/dist
-          zip -r ../../build.zip .
+          cd dist
+          zip -r ../build.zip .
+        working-directory: src/frontend/feedback-app
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
@@ -46,8 +47,7 @@ jobs:
           name: build-artifact
 
       - name: Unzip artifact
-        run: |
-          unzip build-artifact.zip -d dist
+        run: unzip build-artifact.zip -d dist
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2

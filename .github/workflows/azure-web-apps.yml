@@ -28,13 +28,14 @@ jobs:
         run: |
           cd src/frontend/feedback-app
           npm run build
-          ls -la dist  # List contents of the dist directory to verify
 
-      - name: Archive production artifacts
+      - name: Change to the build directory
+        run: cd src/frontend/feedback-app/dist
+
+      - name: Zip the build output
         run: |
-          cd dist
-          zip -r ../dist.zip .
-        working-directory: src/frontend/feedback-app
+          zip -r ../../dist.zip *  # Ensure all files are zipped from the current directory
+        working-directory: src/frontend/feedback-app/dist
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2

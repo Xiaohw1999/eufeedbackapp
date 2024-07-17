@@ -27,8 +27,8 @@ jobs:
 
       - name: Archive production artifacts
         run: |
-          cd src/frontend/feedback-app/dist
-          zip -r ../../../../dist.zip .
+          cd src/frontend/feedback-app
+          zip -r dist.zip dist
 
       - name: List ZIP and directory contents
         run: |
@@ -42,4 +42,4 @@ jobs:
         with:
           app-name: 'citizen-feedback-enhancer'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: dist.zip
+          package: src/frontend/feedback-app/dist.zip

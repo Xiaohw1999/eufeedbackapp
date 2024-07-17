@@ -2,12 +2,10 @@
   "name": "feedback-app",
   "version": "1.0.0",
   "description": "A react app for summarizing feedback",
-  "source": "./index.html",
   "scripts": {
-    "build": "parcel build --public-url ./ --no-scope-hoist",
-    "dev": "parcel",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -26,16 +24,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
-    "@babel/plugin-transform-react-jsx": "^7.24.7",
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.4",
-    "axios": "1.7.2",
-    "buffer": "^6.0.3",
-    "htmlnano": "2.0.3",
-    "parcel": "^2.8.0",
-    "parcel-reporter-static-files-copy": "^1.5.0",
-    "process": "^0.11.10"
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.3.4"
   },
   "engines": {
     "node": "20.x"

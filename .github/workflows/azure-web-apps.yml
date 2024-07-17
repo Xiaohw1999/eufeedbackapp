@@ -28,6 +28,14 @@ jobs:
         run: |
           cd src/frontend/feedback-app
           npm run build
+          ls -la  # List files to debug
+        
+      - name: Check dist directory
+        run: |
+          if [ ! -d "src/frontend/feedback-app/dist" ]; then
+            echo "dist directory does not exist."
+            exit 1
+          fi
 
       - name: Archive production artifacts
         run: |

@@ -32,14 +32,17 @@ jobs:
       - name: Archive production artifacts
         run: |
           cd dist
-          zip -r ../../dist.zip .
+          zip -r ${GITHUB_WORKSPACE}/dist.zip .
         working-directory: src/frontend/feedback-app
+
+      - name: Check ZIP file
+        run: |
+          ls -l ${GITHUB_WORKSPACE}/dist.zip
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'citizen-feedback-enhancer'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: dist.zip  
-
-
+          package: ${GITHUB_WORKSPACE}/dist.zip
+          slot-name: production

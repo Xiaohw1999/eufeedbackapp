@@ -28,7 +28,7 @@ jobs:
       - name: Archive production artifacts
         run: |
           cd src/frontend/feedback-app/dist
-          zip -r ../../dist.zip .
+          zip -r ../../../../dist.zip .
 
       - name: List ZIP and directory contents
         run: |

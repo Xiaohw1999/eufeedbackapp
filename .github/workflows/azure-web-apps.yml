@@ -29,6 +29,10 @@ jobs:
           cd src/frontend/feedback-app
           npm run build
 
+      - name: List build output
+        run: |
+          ls -la src/frontend/feedback-app/dist
+
       - name: Archive production artifacts
         run: |
           cd src/frontend/feedback-app/dist

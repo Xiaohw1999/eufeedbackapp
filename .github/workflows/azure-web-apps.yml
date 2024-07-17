@@ -19,9 +19,6 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Create static directory if not exists
-        run: mkdir -p src/frontend/feedback-app/static
-
       - name: Install dependencies
         run: |
           cd src/frontend/feedback-app
@@ -32,29 +29,16 @@ jobs:
           cd src/frontend/feedback-app
           npm run build
 
-      - name: Zip the build output
+      - name: Archive production artifacts
         run: |
           cd src/frontend/feedback-app/dist
-          zip -r ../../build.zip .
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: build-artifact
-          path: src/frontend/feedback-app/build.zip
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifact
-
-      - name: Unzip artifact
-        run: unzip build-artifact -d dist
+          zip -r dist.zip .
+        working-directory: src/frontend/feedback-app
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'citizen-feedback-enhancer'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: dist
+          package: src/frontend/feedback-app/dist/dist.zip
 

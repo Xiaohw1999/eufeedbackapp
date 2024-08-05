@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A react app for summarizing feedback",
   "scripts": {
+    "start": "vite",
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview"

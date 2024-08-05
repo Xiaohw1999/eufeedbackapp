@@ -9,10 +9,12 @@ import ChatContainer from "../../components/ChatContainer/ChatContainer";
 import useChat from "../../hooks/useChat";
 import useDynamicProperty from "../../hooks/useDynamicProperty";
 import { RiRobot2Line } from "react-icons/ri";
-import {IconButton, Popover} from "@mui/material";
+import { IconButton, Popover, SwipeableDrawer } from "@mui/material";
 import NaviContainer from "../../components/NaviContainer/NaviContainer";
-import { styled } from "@mui/system";
+import SidebarContainer from "../../components/SidebarContainer/SidebarContainer";
+import ListIcon from '@mui/icons-material/List';
 
+const drawerWidth = 240;
 
 export const Home = () => {
   const { 
@@ -39,6 +41,7 @@ export const Home = () => {
     setInputValue("");
   };
 
+  // menu
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuClick = (event) => {
     event.stopPropagation();
@@ -52,13 +55,29 @@ export const Home = () => {
   };
   const open = Boolean(anchorEl);
 
+  // sidebar
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const handleDrawerToggle = (open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    setDrawerOpen(open);
+  };
+
   return (
     <div className="home">
       <div className="top">
           <div className="navigation-bar">
-            <IconButton edge="start" color="inherit" onClick={handleMenuClick}>
-              <VuesaxBulkMenu1 className="vuesax-bulk-menu" />
-            </IconButton>
+            <div className="side-bar">
+              <IconButton edge="start" color="inherit" onClick={handleDrawerToggle(true)}>
+                <ListIcon className="list-icon" color="primary"/>
+              </IconButton>
+            </div>
+            <div className="menu">
+              <IconButton edge="start" color="inherit" onClick={handleMenuClick}>
+                <VuesaxBulkMenu1 className="vuesax-bulk-menu" />
+              </IconButton>
+            </div>
             <Popover
               anchorEl={anchorEl}
               open={open}
@@ -163,7 +182,23 @@ export const Home = () => {
           </div>
           )}
       </div>
+      <SwipeableDrawer
+        anchor="left"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          height: '100vh',
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            height: '100vh',
+          },
+        }}
+        open={drawerOpen}
+        onClose={handleDrawerToggle(false)}
+        onOpen={handleDrawerToggle(true)}
+      >
+        <SidebarContainer />
+      </SwipeableDrawer>
     </div>
   );
 };
-

@@ -28,10 +28,20 @@
   display: flex;
   flex: 0 0 auto;
   gap: 10px;
-  justify-content: space-around;
+  justify-content: space-between;
   padding: 12px 40px;
   position: relative;
   width: 100%;
+}
+
+.home .side-bar {
+  flex: 0 0 auto;
+}
+
+.home .navigation-bar .menu {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .home .vuesax-bulk-menu {

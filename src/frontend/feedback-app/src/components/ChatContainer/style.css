@@ -16,7 +16,7 @@
     position: relative;
     width: 100%;
     padding-bottom: 10px;
-    padding-top: 10px
+    padding-top: 10px;
 }
 
 .chat .search-bar {
@@ -27,8 +27,7 @@
     flex: 0 0 auto;
     padding: 12px 10px;
     position: relative;
-    width: 80%;
-    max-width: 650px;
+    width: 650px;
     height: auto;
 }
   

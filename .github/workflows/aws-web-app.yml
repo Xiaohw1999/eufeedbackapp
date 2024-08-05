@@ -27,3 +27,4 @@ jobs:
             cd src/frontend/feedback-app
             npm install
             pm2 restart all
+            

@@ -21,7 +21,7 @@ const useChatMessages = () => {
       setError(null);
 
       try {
-        const res = await axios.post("http://16.171.132.28/query", {
+        const res = await axios.post("https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/query", {
           query: inputValue.trim(),
         });
 
@@ -44,9 +44,9 @@ const useChatMessages = () => {
 
     setLoading(true);
     setError(null);
-
+    //http://16.171.132.28/query
     try {
-      const res = await axios.post("http://16.171.132.28/query", {
+      const res = await axios.post("https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/query", {
         query: question,
       });
 

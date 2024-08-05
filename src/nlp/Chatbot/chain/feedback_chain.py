@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 import sys
 
-# 设置默认编码为 utf-8
+# utf-8
 sys.stdout.reconfigure(encoding='utf-8')
 
 # Configure logging
@@ -38,11 +38,11 @@ ATLAS_TOKEN = os.environ["ATLAS_TOKEN"]
 ATLAS_USER = os.environ["ATLAS_USER"]
 # Initialize MongoDB Connection
 client = MongoClient(
-    "mongodb+srv://{}:{}@cluster0.9tj38oe.mongodb.net/".format(
+    "mongodb+srv://{}:{}@cluster0.9tj38oe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0".format(
             ATLAS_USER, ATLAS_TOKEN)
 )
-db_name = "citizen_feedback"
-collection_name = "AGRI_embedded_data"
+db_name = "metadata"
+collection_name = "processed_feedback_data"
 collection = client[db_name][collection_name]
 
 # Check for the OpenAI API key
@@ -56,7 +56,7 @@ embeddings = OpenAIEmbeddings(openai_api_key=api_key,
                               model="text-embedding-3-small") # define embeddings to text-embedding-3-small
 vectors = MongoDBAtlasVectorSearch(
     collection=collection, 
-    index_name='AGRI_vector_search',
+    index_name='metadata_vector_index',
     embedding=embeddings, 
     text_key='combined',
     embedding_key='embedding'
@@ -165,4 +165,6 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
     
     # uvicorn feedback_chain:app --reload
+    
+# scp -i "D:\aws_key\aws_node.pem" "D:\visualstudiocode\project\eufeedbackapp\src\nlp\Chatbot\chain\feedback_chain.py" ec2-user@ec2-16-171-132-28.eu-north-1.compute.amazonaws.com:/home/ec2-user/eufeedbackapp
     

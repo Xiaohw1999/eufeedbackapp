@@ -36,15 +36,16 @@ export const Home = () => {
   const properties = ["default", "variant-2", "variant-3", "variant-4"];
   const property = useDynamicProperty(properties);
 
-  const handleSendWithTopic = (inputValue) => {
-    handleSend(inputValue, selectedTopic); 
+  const handleSendWithTopic = () => {
+    handleSend(inputValue, selectedTopic); // Send query and topic to backend
+    setInputValue(""); // Clear input field
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event = null) => {
+    if (event) event.preventDefault();
     handleSendWithTopic(inputValue);
     setInputValue("");
-  };
+};
 
   // menu
   const [anchorEl, setAnchorEl] = useState(null);
@@ -204,7 +205,6 @@ export const Home = () => {
       >
         <SidebarContainer 
           setSelectedTopic={setSelectedTopic}
-          inputValue={inputValue}
         />
       </SwipeableDrawer>
     </div>

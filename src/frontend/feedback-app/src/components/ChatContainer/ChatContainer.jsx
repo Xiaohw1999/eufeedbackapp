@@ -22,7 +22,7 @@ const ChatContainer = ({
 }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleSend(inputValue);
+    handleSend();
   };
 
   return (

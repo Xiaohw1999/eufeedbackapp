@@ -8,12 +8,11 @@ const useChatMessages = () => {
   const [error, setError] = useState(null);
   const [sources, setSources] = useState([]);
 
-  const handleSend = async (inputValue, selectedTopic, setInputValue) => {
+  const handleSend = async (inputValue, selectedTopic) => {
     if (inputValue.trim() !== "") {
       setStartedChat(true);
       const newMessage = { type: "user", text: inputValue.trim() };
       setMessages(prevMessages => [...prevMessages, newMessage]);
-      setInputValue("");
 
       setLoading(true);
       setError(null);
@@ -48,7 +47,6 @@ const useChatMessages = () => {
     try {
       const res = await axios.post("https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/query", {
         query: question,
-        topic: selectedTopic
       });
 
       const responseMessage = { type: "bot", text: res.data.response };

@@ -12,11 +12,11 @@
     display: flex;
     flex: 0 0 auto;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
     position: relative;
     width: 100%;
-    padding-bottom: 10px;
-    padding-top: 10px;
+    padding-bottom: 0px;
+    padding-top: 0px;
 }
 
 .chat .search-bar {
@@ -25,7 +25,7 @@
     border-radius: 40px;
     display: flex;
     flex: 0 0 auto;
-    padding: 12px 10px;
+    padding: 10px 10px;
     position: relative;
     width: 650px;
     height: auto;
@@ -147,9 +147,67 @@
     width: 30%;
     display: flex; 
     align-items: center;
-    justify-content: center;
     background-color: none;
     height: 100%;
+    flex-direction: column;
+    flex: 0 0 auto;
+    gap: 32px;
+    align-self: stretch;
+    background-color:var(--white-12);
+}
+
+.chat .chat-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    margin-top: 20px; /* to make space for fixed search-bar */
+    overflow-y: auto;
+    flex-grow: 1
+}
+
+.chat .chat-input .input-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
+.chat .chat-input .input-container input {
+    width: 100%;
+}
+
+.chat .chat-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    margin-top: 20px; /* to make space for fixed search-bar */
+    overflow-y: auto;
+    flex-grow: 1
+}
+
+.chat .messages-con {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    margin-top: 20px; /* to make space for fixed search-bar */
+}
+
+.chat .chat-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    margin-top: 20px; /* to make space for fixed search-bar */
+    overflow-y: auto;
+    flex-grow: 1
 }
 
 .chat .messages-container {

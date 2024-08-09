@@ -1,5 +1,3 @@
-// hook for chat functionality
-
 import useVoiceRecognition from "./useVoiceRecognition";
 import useInput from "./useInput";
 import useChatMessages from "./useChatMessages";
@@ -18,7 +16,7 @@ const useChat = () => {
     startedChat,
     textareaRef,
     handleInputChange,
-    handleSend: () => handleSend(inputValue, setInputValue),
+    handleSend: (inputValue, selectedTopic) => handleSend(inputValue, selectedTopic, setInputValue),
     handleSuggestionClick,
     loading,
     error,

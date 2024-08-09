@@ -33,6 +33,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Define parse_parameters function to create filter conditions
+def parse_parameters(topic=None):
+    """
+    Parse the input parameters and construct search conditions for MongoDB.
+    Args:
+    - topic (str): The topic to filter by. If 'None', no filtering by topic is applied.
+    Returns:
+    - dict: Constructed search conditions to be used in MongoDB Atlas VectorSearch.
+    """
+    must_conditions = []
+
+    # Add topic condition
+    if topic:
+        filter = {
+            "text": {
+                "path": "topic",
+                "query": topic
+            }
+        }
+        must_conditions.append(filter)
+
+    # Return the constructed conditions
+    if must_conditions:
+        return {
+            "compound": {
+                "must": must_conditions
+            }
+        }
+    else:
+        return {}
+
 # Get MongoDB Atlas credentials from environment variables
 ATLAS_TOKEN = os.environ["ATLAS_TOKEN"]
 ATLAS_USER = os.environ["ATLAS_USER"]
@@ -54,13 +85,6 @@ if not api_key:
 print("Setting up embeddings, vectors, and memory...")
 embeddings = OpenAIEmbeddings(openai_api_key=api_key, 
                               model="text-embedding-3-small") # define embeddings to text-embedding-3-small
-vectors = MongoDBAtlasVectorSearch(
-    collection=collection, 
-    index_name='metadata_vector_index',
-    embedding=embeddings, 
-    text_key='combined',
-    embedding_key='embedding'
-    )
 
 '''set up mmr method'''
 # retriever = vectors.as_retriever(
@@ -69,10 +93,6 @@ vectors = MongoDBAtlasVectorSearch(
 #     )
 
 '''set up similarity method'''
-retriever = vectors.as_retriever(
-    search_type='similarity',
-    search_kwargs={'k': 5}
-    )
 
 memory = ConversationBufferMemory( 
     memory_key='chat_history', 
@@ -82,15 +102,18 @@ memory = ConversationBufferMemory(
 
 llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key=api_key)
 
-prompt_template = """You are a helpful assistant providing detailed analysis and summaries of citizen feedback on EU laws and initiatives. Some feedback may not be in English, so use your translation skills to understand them. Please answer in a friendly and natural manner, just like a normal conversation. If you don't know an answer, say you don't know.
+prompt_template = """You are a helpful assistant providing detailed analysis and summaries of citizen feedback on EU laws and initiatives. 
+Some feedback may not be in English, so use your translation skills to understand them. Please answer in a friendly and natural manner, just like a normal conversation. If you don't know an answer, say you don't know.
 
-Using the information from the context given to you, but do not make up information that is not in the context, provide your answer as detailed and concise as possible.
-For all feedbacks in the given context which is relevant to the given question, answer with the below information in a natural way.
+Using the information from the context given to you, but do not make up information that is not in the context, provide your answer as detailed and concise as possible, then answer with the below information in a natural way.
 
-- The type of user or organization: from context['UserType']
+- The type of user or organization: from context['UserType'] and context['Organization']
 - The country of the feedback provider: from context['Country']
 - A detailed and concrete summary of the feedback: from context['Content'] and context['Title']
 - An analysis of all feedback, including any common themes or notable points
+
+Be careful not to summarize like a list, you can summarize in sections when facing different points. 
+Your answer must be relevant to or from the question and context given to you.
 
 Contexts:
 {context}
@@ -101,35 +124,58 @@ QA_CHAIN_PROMPT = PromptTemplate(
     template=prompt_template,
     )
 
-'''set up the retrieval chain with ConversationalRetrievalChain'''
-# chain = ConversationalRetrievalChain.from_llm(
-#     llm=llm, 
-#     retriever=retriever,
-#     # memory = memory,
-#     return_source_documents=True,
-#     combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
-#     output_key='answer'
-#     )
-
-'''set up the retrieval chain with RetrievalQA'''
-qa_chain = RetrievalQA.from_chain_type(
-    llm=llm,
-    chain_type="stuff",
-    retriever=retriever,
-    return_source_documents=True,
-    chain_type_kwargs={"prompt": QA_CHAIN_PROMPT},
-)
-
 @app.post("/query")
 async def get_feedback(request: Request):
     try:
         data = await request.json()
         query = data.get("query")
+        topic = data.get("topic")
         if not query:
             raise HTTPException(status_code=400, detail="Query parameter is required.")
         
         # Log the received query
         logger.info(f"Received query: {query}")
+        
+        # Generate pre-filter conditions using parse_parameters
+        pre_filter_conditions = parse_parameters(topic=topic)
+        
+        # Initialize vector search with pre-filter
+        vectors = MongoDBAtlasVectorSearch(
+            collection=collection, 
+            index_name='metadata_vector_index',
+            embedding=embeddings, 
+            text_key='combined',
+            embedding_key='embedding'
+        )
+        
+        # Set up the retriever with pre-filter
+        retriever = vectors.as_retriever(
+            search_type='similarity',
+            search_kwargs={
+                'k': 5,  # Retrieve the top 5 most relevant documents
+                'filter': pre_filter_conditions  # Apply the pre-filter conditions here
+            }
+        )
+        
+        '''set up the retrieval chain with ConversationalRetrievalChain'''
+        # chain = ConversationalRetrievalChain.from_llm(
+        #     llm=llm, 
+        #     retriever=retriever,
+        #     # memory = memory,
+        #     return_source_documents=True,
+        #     combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
+        #     output_key='answer'
+        #     )
+        
+        '''Reinitialize the QA chain with the updated retriever'''
+        qa_chain = RetrievalQA.from_chain_type(
+            llm=llm,
+            chain_type="stuff",
+            retriever=retriever,
+            return_source_documents=True,
+            chain_type_kwargs={"prompt": QA_CHAIN_PROMPT},
+        )
+        
         
         # Get the results from the output
         

@@ -14,8 +14,6 @@ import NaviContainer from "../../components/NaviContainer/NaviContainer";
 import SidebarContainer from "../../components/SidebarContainer/SidebarContainer";
 import ListIcon from '@mui/icons-material/List';
 
-const drawerWidth = 240;
-
 export const Home = () => {
   const { 
     inputValue, 
@@ -26,18 +24,25 @@ export const Home = () => {
     startedChat, 
     textareaRef, 
     handleInputChange, 
-    handleSend, 
+    handleSend,
     handleSuggestionClick,
     loading,
     error,
     sources
   } = useChat();
+
+  const [selectedTopic, setSelectedTopic] = useState(null);
+
   const properties = ["default", "variant-2", "variant-3", "variant-4"];
   const property = useDynamicProperty(properties);
 
+  const handleSendWithTopic = (inputValue) => {
+    handleSend(inputValue, selectedTopic); 
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    await handleSend(inputValue);
+    handleSendWithTopic(inputValue);
     setInputValue("");
   };
 
@@ -47,7 +52,7 @@ export const Home = () => {
     event.stopPropagation();
     event.preventDefault();
     setAnchorEl(event.currentTarget);
-  }
+  };
   const handleMenuClose = (event) => {
     event.stopPropagation();
     event.preventDefault();
@@ -67,47 +72,47 @@ export const Home = () => {
   return (
     <div className="home">
       <div className="top">
-          <div className="navigation-bar">
-            <div className="side-bar">
-              <IconButton edge="start" color="inherit" onClick={handleDrawerToggle(true)}>
-                <ListIcon className="list-icon" color="primary"/>
-              </IconButton>
-            </div>
-            <div className="menu">
-              <IconButton edge="start" color="inherit" onClick={handleMenuClick}>
-                <VuesaxBulkMenu1 className="vuesax-bulk-menu" />
-              </IconButton>
-            </div>
-            <Popover
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleMenuClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'center',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'center',
-              }}
-            >
-              <NaviContainer handleClose={handleMenuClose} />
-            </Popover>
+        <div className="navigation-bar">
+          <div className="side-bar">
+            <IconButton edge="start" color="inherit" onClick={handleDrawerToggle(true)}>
+              <ListIcon className="list-icon" color="primary"/>
+            </IconButton>
           </div>
-          {startedChat ? (
-            <ChatContainer
-              inputValue={inputValue}
-              handleInputChange={handleInputChange}
-              handleVoiceInput={handleVoiceInput}
-              handleSend={handleSend}
-              isListening={isListening}
-              textareaRef={textareaRef}
-              messages={messages}
-              loading={loading}
-              error={error}
-              sources={sources}
-            />
-          ) : (     
+          <div className="menu">
+            <IconButton edge="start" color="inherit" onClick={handleMenuClick}>
+              <VuesaxBulkMenu1 className="vuesax-bulk-menu" />
+            </IconButton>
+          </div>
+          <Popover
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'center',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'center',
+            }}
+          >
+            <NaviContainer handleClose={handleMenuClose} />
+          </Popover>
+        </div>
+        {startedChat ? (
+          <ChatContainer
+            inputValue={inputValue}
+            handleInputChange={handleInputChange}
+            handleVoiceInput={handleVoiceInput}
+            handleSend={handleSubmit}
+            isListening={isListening}
+            textareaRef={textareaRef}
+            messages={messages}
+            loading={loading}
+            error={error}
+            sources={sources}
+          />
+        ) : (
           <div className="contents">
             <div className="div">
               <Title
@@ -180,16 +185,16 @@ export const Home = () => {
             {loading && <p>Loading...</p>}
             {error && <p>{error}</p>}
           </div>
-          )}
+        )}
       </div>
       <SwipeableDrawer
         anchor="left"
         sx={{
-          width: drawerWidth,
+          width: 385,
           flexShrink: 0,
           height: '100vh',
           '& .MuiDrawer-paper': {
-            width: drawerWidth,
+            width: 385,
             height: '100vh',
           },
         }}
@@ -197,7 +202,10 @@ export const Home = () => {
         onClose={handleDrawerToggle(false)}
         onOpen={handleDrawerToggle(true)}
       >
-        <SidebarContainer />
+        <SidebarContainer 
+          setSelectedTopic={setSelectedTopic}
+          inputValue={inputValue}
+        />
       </SwipeableDrawer>
     </div>
   );

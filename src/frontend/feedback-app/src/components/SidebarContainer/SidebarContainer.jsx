@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
@@ -6,7 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
-import './style.css'; // Make sure to import the CSS file
+import './style.css';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -20,44 +20,59 @@ const MenuProps = {
   },
 };
 
-const firstOptions = ['Ten', 'Twenty', 'Thirty'];
-const secondOptions = ['Forty', 'Fifty', 'Sixty'];
-const thirdOptions = ['Seventy', 'Eighty', 'Ninety'];
+const topic_dict = {
+    "AGRI": "Agriculture and rural development",
+    "FINANCE": "Banking and financial services",
+    "BORDERS": "Borders and security",
+    "BUDGET": "Budget",
+    "BUSINESS": "Business and industry",
+    "CLIMA": "Climate action",
+    "COMP": "Competition",
+    "CONSUM": "Consumers",
+    "CULT": "Culture and media",
+    "CUSTOMS": "Customs",
+    "DIGITAL": "Digital economy and society",
+    "ECFIN": "Economy, finance and the euro",
+    "EAC": "Education and training",
+    "EMPL": "Employment and social affairs",
+    "ENER": "Energy",
+    "ENV": "Environment",
+    "ENLARG": "EU enlargement",
+    "NEIGHBOUR": "European neighbourhood policy",
+    "FOOD": "Food safety",
+    "FOREIGN": "Foreign affairs and security policy",
+    "FRAUD": "Fraud prevention",
+    "HOME": "Home affairs",
+    "HUMAN": "Humanitarian aid and civil protection",
+    "INST": "Institutional affairs",
+    "INTDEV": "International cooperation and development",
+    "JUST": "Justice and fundamental rights",
+    "MARE": "Maritime affairs and fisheries",
+    "ASYL": "Migration and asylum",
+    "HEALTH": "Public health",
+    "REGIO": "Regional policy",
+    "RESEARCH": "Research and innovation",
+    "SINGMARK": "Single market",
+    "SPORT": "Sport",
+    "STAT": "Statistics",
+    "TAX": "Taxation",
+    "TRADE": "Trade",
+    "TRANSPORT": "Transport",
+    "YOUTH": "Youth"
+};
 
-function getStyles(option, selectedOptions, theme) {
-  return {
-    fontWeight:
-      selectedOptions.indexOf(option) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  };
-}
-
-export default function SidebarContainer() {
+export default function SidebarContainer({ setSelectedTopic }) {
   const theme = useTheme();
-  const [first, setFirst] = React.useState([]);
-  const [second, setSecond] = React.useState([]);
-  const [third, setThird] = React.useState([]);
-
+  const [first, setFirst] = useState('');
+  const firstOptions = ['Any', ...Object.values(topic_dict)];
+  
   const handleFirstChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setFirst(typeof value === 'string' ? value.split(',') : value);
+    setFirst(event.target.value);
   };
 
-  const handleSecondChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setSecond(typeof value === 'string' ? value.split(',') : value);
-  };
-
-  const handleThirdChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setThird(typeof value === 'string' ? value.split(',') : value);
+  const handleSubmit = () => {
+    const topic = first === 'Any' ? null : first;
+    setSelectedTopic(topic);
   };
 
   return (
@@ -65,72 +80,23 @@ export default function SidebarContainer() {
       <div className="title">Settings</div>
       <div className='select-box'>
         <FormControl className="form-control">
-          <InputLabel id="first-select-label">First</InputLabel>
+          <InputLabel id="first-select-label">Topics</InputLabel>
           <Select
             labelId="first-select-label"
             id="first-select"
-            multiple
             value={first}
             onChange={handleFirstChange}
-            input={<OutlinedInput label="First" />}
+            input={<OutlinedInput label="Topics" />}
             MenuProps={MenuProps}
           >
             {firstOptions.map((option) => (
-              <MenuItem
-                key={option}
-                value={option}
-                style={getStyles(option, first, theme)}
-              >
+              <MenuItem key={option} value={option}>
                 {option}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-        <FormControl className="form-control">
-          <InputLabel id="second-select-label">Second</InputLabel>
-          <Select
-            labelId="second-select-label"
-            id="second-select"
-            multiple
-            value={second}
-            onChange={handleSecondChange}
-            input={<OutlinedInput label="Second" />}
-            MenuProps={MenuProps}
-          >
-            {secondOptions.map((option) => (
-              <MenuItem
-                key={option}
-                value={option}
-                style={getStyles(option, second, theme)}
-              >
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl className="form-control">
-          <InputLabel id="third-select-label">Third</InputLabel>
-          <Select
-            labelId="third-select-label"
-            id="third-select"
-            multiple
-            value={third}
-            onChange={handleThirdChange}
-            input={<OutlinedInput label="Third" />}
-            MenuProps={MenuProps}
-          >
-            {thirdOptions.map((option) => (
-              <MenuItem
-                key={option}
-                value={option}
-                style={getStyles(option, third, theme)}
-              >
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button className="submit-button" variant="contained" color="primary">
+        <Button className="submit-button" variant="contained" color="primary" onClick={handleSubmit}>
           Submit
         </Button>
       </div>   

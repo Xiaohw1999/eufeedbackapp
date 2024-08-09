@@ -1,12 +1,31 @@
-.source-container {
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
+    color: white;
+    gap: 7px;
+    margin-top: 8px;
+    height: 100%;
+}
+
+.pagination-container {
+    width: auto;
+    margin-bottom: 0px;
+    background-color: var(--white-64);
+    border-radius: 20px;
+}
+
+.source-container {
+    width: 95%;
     margin-left: 20px;
     margin-right: 20px;
-    padding: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
-    max-height: 500px;
+    height: auto;
     background-color: none;
     color: white;
     align-self: flex-start;
@@ -21,32 +40,44 @@
 
 .source-container::-webkit-scrollbar {
     width: 12px;
-    
 }
+
 /* 轨道 */
 .source-container::-webkit-scrollbar-track {
     background: var(--white-12);
     border-radius: 5px;
 }
+
 /* 滑块 */
 .source-container::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 5px;
 }
- /*悬停  */
+
+/* 悬停 */
 .source-container::-webkit-scrollbar-thumb:hover {
     background: var(--white-48);
 }
-  
+
 .source-container h3 {
     margin-bottom: 10px;
 }
-  
+
 .source-container ul {
     list-style-type: none;
     padding: 0;
 }
-  
+
 .source-container li {
     margin-bottom: 10px;
+}
+
+.source-item {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.source-item:last-child {
+    border-bottom: none;
 }

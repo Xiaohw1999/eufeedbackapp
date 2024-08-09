@@ -27,9 +27,9 @@
   align-self: stretch;
   display: flex;
   flex: 0 0 auto;
-  gap: 10px;
+  gap: 5px;
   justify-content: space-between;
-  padding: 12px 40px;
+  padding: 5px 40px;
   position: relative;
   width: 100%;
 }

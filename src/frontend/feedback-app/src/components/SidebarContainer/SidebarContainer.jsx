@@ -6,6 +6,8 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import './style.css';
 
 const ITEM_HEIGHT = 48;
@@ -64,6 +66,8 @@ const topic_dict = {
 export default function SidebarContainer({ setSelectedTopic }) {
   const theme = useTheme();
   const [first, setFirst] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
   const firstOptions = ['Any', ...Object.values(topic_dict)];
   
   const handleFirstChange = (event) => {
@@ -73,6 +77,14 @@ export default function SidebarContainer({ setSelectedTopic }) {
   const handleSubmit = () => {
     const topic = first === 'Any' ? null : first;
     setSelectedTopic(topic);
+    setOpenSnackbar(true); // 打开 Snackbar
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false); // 关闭 Snackbar
   };
 
   return (
@@ -100,6 +112,18 @@ export default function SidebarContainer({ setSelectedTopic }) {
           Submit
         </Button>
       </div>   
+
+      {/* snackbar */}
+      <Snackbar 
+        open={openSnackbar} 
+        autoHideDuration={1200} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          Successfully submitted!
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

@@ -26,8 +26,6 @@ change prompt template use a format with person organization, country.... ****do
 
 EC2 instance for fastapi ****done http://16.171.132.28/query
 
-elastic beanstalk for fastapi
+use react to build new ui for app, figma ****done
 
-use react to build new ui for app, figma
-
-write logic to include pdfs in database
+write logic to include pdfs in database  ****done

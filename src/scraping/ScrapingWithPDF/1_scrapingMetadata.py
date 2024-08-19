@@ -1,3 +1,4 @@
+# 1_scrapingMetadata.py 
 # scraping data from website and store metadata to mongodb atalas
 
 import os
@@ -80,22 +81,22 @@ async def main():
                 total_feedback.extend(feedback_info_str)
                 all_data.extend(feedback_info_str)
         
-        output = 'D:/visualstudiocode/project/eufeedbackapp/src/database/test_data'
-        final_file = os.path.join(output, f'test_data.json')
-        if not os.path.exists(output):
-            os.makedirs(output)
+    #     output = 'D:/visualstudiocode/project/eufeedbackapp/src/database/test_data'
+    #     final_file = os.path.join(output, f'test_data.json')
+    #     if not os.path.exists(output):
+    #         os.makedirs(output)
         
-        with open(final_file, 'w', encoding='utf-8') as f:
-            json.dump(total_feedback, f, ensure_ascii=False, indent=4)
+    #     with open(final_file, 'w', encoding='utf-8') as f:
+    #         json.dump(total_feedback, f, ensure_ascii=False, indent=4)
         
-        end_time = time.time()
-        print(f'Total processing time for topic {topic}: {end_time - start_time} seconds')
+    #     end_time = time.time()
+    #     print(f'Total processing time for topic {topic}: {end_time - start_time} seconds')
 
-    # save all to csv
-    df = pd.DataFrame(all_data)
-    csv_output = os.path.join(output, 'all_topics_data.csv')
-    df.to_csv(csv_output, index=False)
-    print(f"All topics data saved to {csv_output}")
+    # # save all to csv
+    # df = pd.DataFrame(all_data)
+    # csv_output = os.path.join(output, 'all_topics_data.csv')
+    # df.to_csv(csv_output, index=False)
+    # print(f"All topics data saved to {csv_output}")
 
 if __name__ == '__main__':
     asyncio.run(main())

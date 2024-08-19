@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
+import CircularProgress from '@mui/material/CircularProgress';
 import "./style.css";
 
 const parseSourceText = (text) => {
@@ -19,9 +20,9 @@ const parseSourceText = (text) => {
   };
 };
 
-const SourceContainer = ({ sources }) => {
+const SourceContainer = ({ sources, loading }) => {
   const [page, setPage] = useState(1);
-  const itemsPerPage = 1; // 每页显示一个 source
+  const itemsPerPage = 1;
 
   const handleChange = (event, value) => {
     setPage(value);
@@ -35,28 +36,36 @@ const SourceContainer = ({ sources }) => {
   return (
     <div className="container">
       <h3>SOURCES</h3>
-      <Stack spacing={2} alignItems="center" marginTop={2} className="pagination-container">
-        <Pagination
-          count={Math.ceil(sources.length / itemsPerPage)}
-          page={page}
-          onChange={handleChange}
-          shape="rounded"
-        />
-      </Stack>
-      <div className="source-container">
-        {paginatedSources.map((source, index) => {
-          const parsedSource = parseSourceText(source.text);
-          return (
-            <div key={index} className="source-item">
-              <p><strong>Title:</strong> {parsedSource.title}</p>
-              <p><strong>Content:</strong> {parsedSource.content}</p>
-              <p><strong>User Type:</strong> {parsedSource.userType}</p>
-              <p><strong>Country:</strong> {parsedSource.country}</p>
-              <p><strong>Organization:</strong> {parsedSource.organization}</p>
-            </div>
-          );
-        })}
-      </div>
+      {loading ? (
+        <div className="loading-container">
+          <CircularProgress size={30}/>
+        </div>
+      ) : (
+        <>
+          <Stack spacing={2} alignItems="center" marginTop={2} className="pagination-container">
+            <Pagination
+              count={Math.ceil(sources.length / itemsPerPage)}
+              page={page}
+              onChange={handleChange}
+              shape="rounded"
+            />
+          </Stack>
+          <div className="source-container">
+            {paginatedSources.map((source, index) => {
+              const parsedSource = parseSourceText(source.text);
+              return (
+                <div key={index} className="source-item">
+                  <p><strong>Title:</strong> {parsedSource.title}</p>
+                  <p><strong>Content:</strong> {parsedSource.content}</p>
+                  <p><strong>User Type:</strong> {parsedSource.userType}</p>
+                  <p><strong>Country:</strong> {parsedSource.country}</p>
+                  <p><strong>Organization:</strong> {parsedSource.organization}</p>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 };

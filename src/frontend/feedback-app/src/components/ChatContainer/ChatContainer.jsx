@@ -4,6 +4,7 @@ import React from "react";
 import { VuesaxBulkMenu1 } from "../../icons/VuesaxBulkMenu1";
 import { VuesaxTwotoneMicrophone1 } from "../../icons/VuesaxTwotoneMicrophone1";
 import { OutlineArrowCircleUp } from "../../icons/OutlineArrowCircleUp";
+import CircularProgress from '@mui/material/CircularProgress';
 import "./style.css";
 import { RiRobot2Line } from "react-icons/ri";
 import SourceContainer from "../SourceContainer/SourceContainer";
@@ -64,25 +65,27 @@ const ChatContainer = ({
                 ))}
                 {loading && (
                     <div className="message bot">
-                    <div className="icon-wrapper">
-                        <RiRobot2Line color="white" size="20px" className="robot-icon" />
-                    </div>
-                    <div className="message-text">Loading...</div>
+                      <div className="icon-wrapper">
+                          <RiRobot2Line color="white" size="20px" className="robot-icon" />
+                      </div>
+                      <div className="message-text">
+                        <CircularProgress size={30} />
+                      </div>
                     </div>
                 )}
                 {error && (
                     <div className="message bot">
-                    <div className="icon-wrapper">
-                        <RiRobot2Line color="white" size="20px" className="robot-icon" />
-                    </div>
-                    <div className="message-text">{error}</div>
+                      <div className="icon-wrapper">
+                          <RiRobot2Line color="white" size="20px" className="robot-icon" />
+                      </div>
+                      <div className="message-text">{error}</div>
                     </div>
                 )}
             </div>
           </div>
         </div>
         <div className="right-content">
-          <SourceContainer sources={sources} />
+          <SourceContainer sources={sources} loading={loading} />
         </div>
       </div>
     </div>

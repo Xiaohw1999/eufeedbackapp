@@ -4,7 +4,6 @@ This repository is a project to build a Q&A web application according to EU poli
 
 ## Project Structure
 
-
 - **SRC**
   - **data**
     - json and csv files scraped from the "Have Your Say" website grouped by different policy topics.
@@ -13,14 +12,15 @@ This repository is a project to build a Q&A web application according to EU poli
   - **download**
     - pdf (attachments) files scraped from the "Have Your Say" website.
   - **frontend**
-    - (frontend code here)
-  - **machine_learning**
+    - chatbot, frontend code developed with react and deployed on netlify.
+  - **nlp**
     - **Chatbot**
-      - a chatbot based on LangChain and OpenAI, deployed on Streamlit.
+      - a demo chatbot based on LangChain and OpenAI, deployed on Streamlit.
     - **DataPreprocessing**
       - data distribution analysis, data cleaning, and embedding with OpenAI embedding.
   - **scraping**
     - code for scraping data and pdf files from the "Have Your Say" website.
+    - a pipline for scraping data and storing into database.
 
 ## Scraping Logic
 
@@ -101,5 +101,10 @@ This repository is a project to build a Q&A web application according to EU poli
 ### PDF Files
 
 - Download PDF files with the URL: `https://ec.europa.eu/info/law/better-regulation/api/download/{documentId}`
+- Download and store the file teporarily, extract the text and merge it into metadata feedback context.
 
-To be updated
+### Web Application
+
+- This web application (Chatbot) is developed with react, designed with figma and material-ui.
+- To deploy the web application, I choose to use netlify, which is free and automatically deploys as long as you push to the github.
+- The web application is deployed at https://eufeedback-enhancer.netlify.app.

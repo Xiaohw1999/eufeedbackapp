@@ -5,9 +5,6 @@ import asyncio
 import aiohttp
 from aiohttp_retry import RetryClient, ExponentialRetry
 from aiohttp.client_exceptions import ClientOSError
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
-sys.path.append(project_root)
-from configLoader import config
 import pymongo
 from bson import ObjectId
 import fitz
@@ -54,6 +51,10 @@ topic_dict = {
     "YOUTH": "Youth"
 }
 
+url_initiatives_id = "https://ec.europa.eu/info/law/better-regulation/brpapi/searchInitiatives?"
+url_publication_id = 'https://ec.europa.eu/info/law/better-regulation/brpapi/groupInitiatives/'
+url_feedback_info = "https://ec.europa.eu/info/law/better-regulation/api/allFeedback?publicationId={}&keywords=&language=EN&page={}&size=10&sort=dateFeedback,DESC"
+
 def convert_objectid_to_str(data):
     if isinstance(data, list):
         return [convert_objectid_to_str(item) for item in data]
@@ -84,7 +85,7 @@ async def fetch_data(session, url, params=None, semaphore=None, timeout=10):
 
 # Pipline 1: get initiatives id
 async def get_init_id(session, topic, size, language, page, semaphore):
-    url = config['urls']['initiatives_id']
+    url = url_initiatives_id
     params = {
         'topic': topic,
         'size': size,
@@ -105,7 +106,7 @@ async def get_publication_id(session, id_list, semaphore):
 
     tasks = []
     for id in id_list:
-        p_id_url = config['urls']['publication_id']
+        p_id_url = url_publication_id
         url = p_id_url + f'{id}'
         tasks.append(fetch_data(session, url, semaphore=semaphore))
 
@@ -158,7 +159,7 @@ async def get_feedback_info(session, pubid, topic, semaphore):
     return feedback_info
 
 async def fetch_feedback(session, id, shortTitle, topic, pub_id, frontendstage, totalFeedback, semaphore):
-    feedback_info_url = config['urls']['feedback_info']
+    feedback_info_url = url_feedback_info
     feedback_data = []
     page_number = 0
     while True:
@@ -270,10 +271,24 @@ def store_to_mongodb(data):
     try:
         db = client['metadata']
         collection = db['feedbackinfo_data']
-        collection.insert_many(data)
-        print("Data inserted successfully into MongoDB.")
+        
+        for item in data:
+            query = {'id': item['id'], 'publicationId': item['publicationId']}
+            existing_record = collection.find_one(query)
+            
+            if existing_record:
+                # Update the existing record
+                collection.update_one(query, {'$set': item})
+                print(f"Updated record with id: {item['id']} and publicationId: {item['publicationId']}")
+            else:
+                # Insert new record
+                collection.insert_one(item)
+                print(f"Inserted new record with id: {item['id']} and publicationId: {item['publicationId']}")
+                
+        print("Data processed successfully into MongoDB.")
     finally:
         client.close()  # Ensure the connection is closed
+
         
 async def fetch_text_from_url(session, pdf_url):
     async with session.get(pdf_url) as response:

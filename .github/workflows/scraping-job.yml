@@ -4,6 +4,8 @@ name: Monthly Scraping Job
 on:
   schedule:
     - cron: '0 22 1 * *'  # This represents 22:00 UTC on the 1st day of every month (which is 00:00 in Switzerland)
+    - cron: '0 22 3 * *'
+    - cron: '0 22 23 * *'
 
 jobs:
   scraping_and_processing:

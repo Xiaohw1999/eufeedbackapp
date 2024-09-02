@@ -124,7 +124,7 @@ async def get_publication_id(session, id_list, semaphore):
             total_Feedback = item.get('totalFeedback')
             frontEndStage = item.get('frontEndStage')
             # threshold check here
-            if total_Feedback == 0 or total_Feedback > 2000:
+            if total_Feedback == 0 or total_Feedback > 3000:
                 print(f'{id} {publi_id} {frontEndStage} skipped due to zero or too many feedbacks')
                 continue
             publication_ids.append(publi_id)

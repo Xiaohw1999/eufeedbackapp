@@ -35,12 +35,19 @@ jobs:
 
       # Step 1: Run the first script (scraping metadata)
       - name: Run metadata scraping script
+        env:
+          ATLAS_USER: ${{ secrets.ATLAS_USER }}
+          ATLAS_TOKEN: ${{ secrets.ATLAS_TOKEN }}
         run: |
           cd src/scraping/ScrapingWithPDF
           python 1_scrapingMetadata.py
 
       # Step 2: Run the second script (processing and embedding)
       - name: Run feedback processing script
+        env:
+          ATLAS_USER: ${{ secrets.ATLAS_USER }}
+          ATLAS_TOKEN: ${{ secrets.ATLAS_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           cd src/scraping/ScrapingWithPDF
           python 2_preprocessingMetadata.py

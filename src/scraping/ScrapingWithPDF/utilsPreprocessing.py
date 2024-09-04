@@ -9,6 +9,7 @@ from openai import OpenAI
 import logging
 
 database_test = 'test'
+database_metadata = 'metadata'
 metadata_collection_name = 'feedbackinfo_data'
 processeddata_collection_name = 'processed_feedback_data'
 progress_collection_name = 'processing_progress'
@@ -144,7 +145,10 @@ def process_and_clean_metadata(database, batch_size=200):
                 feedbacks = item.get('feedback', [])
                 for feedback in feedbacks:
                     if isinstance(feedback, dict) and feedback['id'] not in processed_ids:
+                        logger.info(f"Processing feedback ID: {feedback['id']}")
                         futures.append(executor.submit(process_feedback, feedback, base_info))
+                    else:
+                        logger.info(f"Skipping feedback as it's already processed or not a dictionary")
             
             for future in as_completed(futures):
                 try:

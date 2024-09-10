@@ -79,7 +79,7 @@ const modelOptions = [
 const searchTypeOptions = [
   { value: 'similarity', label: 'Similarity' },
   { value: 'mmr', label: 'MMR (Maximal Marginal Relevance)' },
-  { value: 'similarity_score_threshold', label: 'Similarity Score Threshold' },
+  // { value: 'similarity_score_threshold', label: 'Similarity Score Threshold' },
 ];
 
 const fetchKOptions = [20, 30, 40];

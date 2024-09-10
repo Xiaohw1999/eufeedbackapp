@@ -16,8 +16,8 @@ const useChat = () => {
     startedChat,
     textareaRef,
     handleInputChange,
-    handleSend: (inputValue, selectedTopic, selectedChain, selectedModel, selectedOptions) => 
-      handleSend(inputValue, selectedTopic, selectedChain, selectedModel, selectedOptions, setInputValue),
+    handleSend: (inputValue, selectedTopic, selectedChain, selectedModel, searchOptions) => 
+      handleSend(inputValue, selectedTopic, selectedChain, selectedModel, searchOptions, setInputValue),
     handleSuggestionClick,
     loading,
     error,

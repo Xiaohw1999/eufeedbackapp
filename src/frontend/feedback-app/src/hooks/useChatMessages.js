@@ -8,7 +8,7 @@ const useChatMessages = () => {
   const [error, setError] = useState(null);
   const [sources, setSources] = useState([]);
 
-  const handleSend = async (inputValue, selectedTopic, selectedChain, selectedModel, selectedOptions) => {
+  const handleSend = async (inputValue, selectedTopic, selectedChain, selectedModel, searchOptions) => {
     if (inputValue.trim() !== "") {
       setStartedChat(true);
       const newMessage = { type: "user", text: inputValue.trim() };

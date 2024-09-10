@@ -8,7 +8,7 @@ const useChatMessages = () => {
   const [error, setError] = useState(null);
   const [sources, setSources] = useState([]);
 
-  const handleSend = async (inputValue, selectedTopic) => {
+  const handleSend = async (inputValue, selectedTopic, selectedChain, selectedModel, selectedOptions) => {
     if (inputValue.trim() !== "") {
       setStartedChat(true);
       const newMessage = { type: "user", text: inputValue.trim() };
@@ -21,7 +21,11 @@ const useChatMessages = () => {
         // send inputValue to backend
         const res = await axios.post("https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/query", {
           query: inputValue.trim(),
-          topic: selectedTopic // topic
+          topic: selectedTopic, // topic
+          chain_type: selectedChain, // chain
+          model_name: selectedModel, // model
+          search_type: searchOptions.searchType, // search type
+          search_kwargs: searchOptions.search_kwargs, // search parameters
         });
 
         const responseMessage = { type: "bot", text: res.data.response };

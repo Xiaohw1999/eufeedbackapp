@@ -32,12 +32,15 @@ export const Home = () => {
   } = useChat();
 
   const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedChain, setSelectedChain] = useState('conversational');
+  const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo');
+  const [searchOptions, setSearchOptions] = useState({ searchType: 'similarity', search_kwargs: { k: 5 } });
 
   const properties = ["default", "variant-2", "variant-3", "variant-4"];
   const property = useDynamicProperty(properties);
 
   const handleSendWithTopic = () => {
-    handleSend(inputValue, selectedTopic); // Send query and topic to backend
+    handleSend(inputValue, selectedTopic, selectedChain, selectedModel, searchOptions); // Send query and selected parameters to backend
     setInputValue(""); // Clear input field
   };
 
@@ -205,6 +208,9 @@ export const Home = () => {
       >
         <SidebarContainer 
           setSelectedTopic={setSelectedTopic}
+          setSelectedChain={setSelectedChain}
+          setSelectedModel={setSelectedModel}
+          setSearchOptions={setSearchOptions}
         />
       </SwipeableDrawer>
     </div>

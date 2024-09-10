@@ -7,9 +7,10 @@ from pymongo import MongoClient
 from fastapi import FastAPI, HTTPException, Request
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain_openai import ChatOpenAI
-from langchain_mongodb import MongoDBAtlasVectorSearch # test
+from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch # test
 from langchain.memory import ConversationBufferMemory 
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -51,7 +52,7 @@ def parse_parameters(topic=None):
         filter = {
             "text": {
                 "path": "topic",
-                "query": topic
+                "query": topic,
             }
         }
         must_conditions.append(filter)
@@ -94,37 +95,89 @@ embeddings = OpenAIEmbeddings(openai_api_key=api_key,
 #     search_kwargs={'k': 5, 'lambda_mult': 0.1,}
 #     )
 
-'''set up similarity method'''
+# Initialize vector search with pre-filter
+vectors = MongoDBAtlasVectorSearch(
+    collection=collection, 
+    index_name='metadata_vector_index',
+    embedding=embeddings, 
+    text_key='combined',
+    embedding_key='embedding',
+    relevance_score_fn="cosine",
+)
 
 memory = ConversationBufferMemory( 
     memory_key='chat_history', 
-    return_messages=True, 
+    return_messages=True,
     output_key='answer'
     ) 
 
-llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key=api_key)
+def create_conversational_chain(llm, retriever):
+    prompt_template = """You are a helpful assistant providing detailed analysis and summaries of citizen feedback on EU laws and initiatives. 
+    Some feedback may not be in English, so use your translation skills to understand them. Please answer in a friendly and natural manner, just like a normal conversation. If you don't know an answer, say you don't know.
 
-prompt_template = """You are a helpful assistant providing detailed analysis and summaries of citizen feedback on EU laws and initiatives. 
-Some feedback may not be in English, so use your translation skills to understand them. Please answer in a friendly and natural manner, just like a normal conversation. If you don't know an answer, say you don't know.
+    Only use the information from the context given to you, and do not make up information that is not in the context. Provide your answer as detailed and concise as possible, then answer with the below information in a natural way.
 
-Using the information from the context given to you, but do not make up information that is not in the context, provide your answer as detailed and concise as possible, then answer with the below information in a natural way.
+    - The type of user or organization: from context['UserType'] and context['Organization']
+    - The country of the feedback provider: from context['Country']
+    - A detailed and concrete summary of the feedback: from context['Content'] and context['Title']
+    - An analysis of all feedback, including any common themes or notable points
 
-- The type of user or organization: from context['UserType'] and context['Organization']
-- The country of the feedback provider: from context['Country']
-- A detailed and concrete summary of the feedback: from context['Content'] and context['Title']
-- An analysis of all feedback, including any common themes or notable points
+    Be careful not to summarize like a list, you can summarize in sections when facing different points. 
+    Your answer must be relevant to or from the question and context given to you.
 
-Be careful not to summarize like a list, you can summarize in sections when facing different points. 
-Your answer must be relevant to or from the question and context given to you.
+    If the context does not provide an answer, say "I don't know."
 
-Contexts:
-{context}
-Question: {question}
-"""
-QA_CHAIN_PROMPT = PromptTemplate(
-    input_variables=["context", "question"],
-    template=prompt_template,
+    Contexts:
+    {context}
+    Question: {question}
+
+    Chat History:
+    {chat_history}
+    """
+    QA_CHAIN_PROMPT = ChatPromptTemplate.from_template(prompt_template)
+    
+    conversational_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=retriever,
+        memory=memory,
+        combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
+        return_source_documents=True,
+        output_key='answer'
     )
+    
+    return conversational_chain
+
+def create_retrieval_qa_chain(llm, retriever):
+    prompt_template = """You are a helpful assistant providing detailed analysis and summaries of citizen feedback on EU laws and initiatives. 
+    Some feedback may not be in English, so use your translation skills to understand them. Please answer in a friendly and natural manner, just like a normal conversation. If you don't know an answer, say you don't know.
+
+    Only use the information from the context given to you, and do not make up information that is not in the context. Provide your answer as detailed and concise as possible, then answer with the below information in a natural way.
+
+    - The type of user or organization: from context['UserType'] and context['Organization']
+    - The country of the feedback provider: from context['Country']
+    - A detailed and concrete summary of the feedback: from context['Content'] and context['Title']
+    - An analysis of all feedback, including any common themes or notable points
+
+    Be careful not to summarize like a list, you can summarize in sections when facing different points. 
+    Your answer must be relevant to or from the question and context given to you.
+
+    If the context does not provide an answer, say "I don't know."
+
+    Contexts:
+    {context}
+    Question: {question}
+    """
+    QA_CHAIN_PROMPT = ChatPromptTemplate.from_template(prompt_template)
+    
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=retriever,
+        return_source_documents=True,
+        chain_type_kwargs={"prompt": QA_CHAIN_PROMPT},
+    )
+    
+    return qa_chain
 
 @app.post("/query")
 async def get_feedback(request: Request):
@@ -132,6 +185,10 @@ async def get_feedback(request: Request):
         data = await request.json()
         query = data.get("query")
         topic = data.get("topic")
+        chain_type = data.get("chain_type", "conversational")
+        model_name = data.get("model_name", "gpt-3.5-turbo")
+        search_type = data.get("search_type", "similarity")
+        search_kwargs = data.get("search_kwargs", {'k': 5})
         if not query:
             raise HTTPException(status_code=400, detail="Query parameter is required.")
         
@@ -140,57 +197,29 @@ async def get_feedback(request: Request):
         
         # Generate pre-filter conditions using parse_parameters
         pre_filter_conditions = parse_parameters(topic=topic)
+        search_kwargs['filter'] = pre_filter_conditions
         
-        # Initialize vector search with pre-filter
-        vectors = MongoDBAtlasVectorSearch(
-            collection=collection, 
-            index_name='metadata_vector_index',
-            embedding=embeddings, 
-            text_key='combined',
-            embedding_key='embedding'
-        )
+        # Dynamically create the LLM based on model_name
+        llm = ChatOpenAI(temperature=0.5, model_name=model_name, openai_api_key=api_key)
         
-        # Set up the retriever with pre-filter
+        # creat retriever and use combined search_kwargs
         retriever = vectors.as_retriever(
-            search_type='similarity',
-            search_kwargs={
-                'k': 5,  # Retrieve the top 5 most relevant documents
-                'filter': pre_filter_conditions  # Apply the pre-filter conditions here
-            }
+            search_type=search_type,
+            search_kwargs=search_kwargs
         )
         
-        '''set up the retrieval chain with ConversationalRetrievalChain'''
-        # chain = ConversationalRetrievalChain.from_llm(
-        #     llm=llm, 
-        #     retriever=retriever,
-        #     # memory = memory,
-        #     return_source_documents=True,
-        #     combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
-        #     output_key='answer'
-        #     )
+        # Select the appropriate chain based on the request
+        if chain_type == "conversational":
+            chain = create_conversational_chain(llm, retriever)
+            response = chain.invoke({"question": query, "chat_history": []})
+            answer = response.get('answer', 'No answer found')
+        elif chain_type == "retrievalqa":
+            chain = create_retrieval_qa_chain(llm, retriever)
+            response = chain.invoke({"query": query})
+            answer = response.get('result', 'No answer found')
         
-        '''Reinitialize the QA chain with the updated retriever'''
-        qa_chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=retriever,
-            return_source_documents=True,
-            chain_type_kwargs={"prompt": QA_CHAIN_PROMPT},
-        )
-        
-        
-        # Get the results from the output
-        
-        '''get response use ConversationalRetrievalChain'''
-        # response = chain.invoke({"question": query, "chat_history": []})
-        # answer = response.get('answer', 'No answer found')
-        
-        '''get response use qa chain'''
-        response = qa_chain.invoke({"query": query})
-        answer = response.get('result', 'No answer found')
-        
-        # Log the raw response for debugging
-        # logger.info(f"Raw response: {response}")
+        # Log the raw response for debugging  
+        logger.info(f"Response: {response}")
 
         source_documents = response.get('source_documents', [])
         sources = [{"text": doc.page_content} for doc in source_documents]
@@ -215,4 +244,6 @@ if __name__ == "__main__":
     # uvicorn feedback_chain:app --reload
     
 # scp -i "D:\aws_key\aws_node.pem" "D:\visualstudiocode\project\eufeedbackapp\src\nlp\Chatbot\chain\feedback_chain.py" ec2-user@ec2-16-171-132-28.eu-north-1.compute.amazonaws.com:/home/ec2-user/eufeedbackapp
-    
+# sudo systemctl restart my-fastapi-app.service
+# sudo nano /etc/systemd/system/my-fastapi-app.service
+# sudo systemctl status my-fastapi-app

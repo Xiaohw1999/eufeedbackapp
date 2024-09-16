@@ -9,6 +9,13 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CircularProgress from '@mui/material/CircularProgress';
+import Autocomplete from '@mui/material/Autocomplete';
+import useKeywordSearch from '../../hooks/useKeywordSearch';
 import './style.css';
 
 const ITEM_HEIGHT = 48;
@@ -24,44 +31,44 @@ const MenuProps = {
 };
 
 const topic_dict = {
-    "AGRI": "Agriculture and rural development",
-    "FINANCE": "Banking and financial services",
-    "BORDERS": "Borders and security",
-    "BUDGET": "Budget",
-    "BUSINESS": "Business and industry",
-    "CLIMA": "Climate action",
-    "COMP": "Competition",
-    "CONSUM": "Consumers",
-    "CULT": "Culture and media",
-    "CUSTOMS": "Customs",
-    "DIGITAL": "Digital economy and society",
-    "ECFIN": "Economy, finance and the euro",
-    "EAC": "Education and training",
-    "EMPL": "Employment and social affairs",
-    "ENER": "Energy",
-    "ENV": "Environment",
-    "ENLARG": "EU enlargement",
-    "NEIGHBOUR": "European neighbourhood policy",
-    "FOOD": "Food safety",
-    "FOREIGN": "Foreign affairs and security policy",
-    "FRAUD": "Fraud prevention",
-    "HOME": "Home affairs",
-    "HUMAN": "Humanitarian aid and civil protection",
-    "INST": "Institutional affairs",
-    "INTDEV": "International cooperation and development",
-    "JUST": "Justice and fundamental rights",
-    "MARE": "Maritime affairs and fisheries",
-    "ASYL": "Migration and asylum",
-    "HEALTH": "Public health",
-    "REGIO": "Regional policy",
-    "RESEARCH": "Research and innovation",
-    "SINGMARK": "Single market",
-    "SPORT": "Sport",
-    "STAT": "Statistics",
-    "TAX": "Taxation",
-    "TRADE": "Trade",
-    "TRANSPORT": "Transport",
-    "YOUTH": "Youth"
+  "AGRI": "Agriculture and rural development",
+  "FINANCE": "Banking and financial services",
+  "BORDERS": "Borders and security",
+  "BUDGET": "Budget",
+  "BUSINESS": "Business and industry",
+  "CLIMA": "Climate action",
+  "COMP": "Competition",
+  "CONSUM": "Consumers",
+  "CULT": "Culture and media",
+  "CUSTOMS": "Customs",
+  "DIGITAL": "Digital economy and society",
+  "ECFIN": "Economy, finance and the euro",
+  "EAC": "Education and training",
+  "EMPL": "Employment and social affairs",
+  "ENER": "Energy",
+  "ENV": "Environment",
+  "ENLARG": "EU enlargement",
+  "NEIGHBOUR": "European neighbourhood policy",
+  "FOOD": "Food safety",
+  "FOREIGN": "Foreign affairs and security policy",
+  "FRAUD": "Fraud prevention",
+  "HOME": "Home affairs",
+  "HUMAN": "Humanitarian aid and civil protection",
+  "INST": "Institutional affairs",
+  "INTDEV": "International cooperation and development",
+  "JUST": "Justice and fundamental rights",
+  "MARE": "Maritime affairs and fisheries",
+  "ASYL": "Migration and asylum",
+  "HEALTH": "Public health",
+  "REGIO": "Regional policy",
+  "RESEARCH": "Research and innovation",
+  "SINGMARK": "Single market",
+  "SPORT": "Sport",
+  "STAT": "Statistics",
+  "TAX": "Taxation",
+  "TRADE": "Trade",
+  "TRANSPORT": "Transport",
+  "YOUTH": "Youth"
 };
 
 const chainOptions = [
@@ -79,7 +86,6 @@ const modelOptions = [
 const searchTypeOptions = [
   { value: 'similarity', label: 'Similarity' },
   { value: 'mmr', label: 'MMR (Maximal Marginal Relevance)' },
-  // { value: 'similarity_score_threshold', label: 'Similarity Score Threshold' },
 ];
 
 const fetchKOptions = [20, 30, 40];
@@ -87,8 +93,8 @@ const fetchKOptions = [20, 30, 40];
 export default function SidebarContainer({ setSelectedTopic, setSelectedChain, setSelectedModel, setSearchOptions }) {
   const theme = useTheme();
   const [first, setFirst] = useState('');
-  const [chain, setChain] = useState('conversational');
-  const [model, setModel] = useState('gpt-3.5-turbo');
+  const [chain, setChain] = useState('retrievalqa');
+  const [model, setModel] = useState('gpt-4o-mini');
   const [searchType, setSearchType] = useState('similarity');
   const [k, setK] = useState(5);
   const [fetchK, setFetchK] = useState(20);
@@ -97,7 +103,7 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const firstOptions = ['Any', ...Object.values(topic_dict)];
-  
+
   const handleFirstChange = (event) => {
     setFirst(event.target.value);
   };
@@ -138,140 +144,230 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
     setOpenSnackbar(false); // close Snackbar
   };
 
+  const {
+    keyword,
+    searchResults,
+    isLoading,
+    error,
+    handleKeywordChange,
+    handleKeywordSearch,
+    selectedResult,
+    setSelectedResult,
+  } = useKeywordSearch();
+
   return (
     <div className="sidebar-container">
-      <div className="title">Settings</div>
-      <div className='select-box'>
-        {/* Topic */}
-        <FormControl className="form-control">
-          <InputLabel id="first-select-label">Topics</InputLabel>
-          <Select
-            labelId="first-select-label"
-            id="first-select"
-            value={first}
-            onChange={handleFirstChange}
-            input={<OutlinedInput label="Topics" />}
-            MenuProps={MenuProps}
-          >
-            {firstOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        {/* Chain */}
-        <FormControl className="form-control">
-          <InputLabel id="chain-select-label">Retrieval Chain</InputLabel>
-          <Select
-            labelId="chain-select-label"
-            id="chain-select"
-            value={chain}
-            onChange={handleChainChange}
-            input={<OutlinedInput label="Retrieval Chain" />}
-            MenuProps={MenuProps}
-          >
-            {chainOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        {/* Model */}
-        <FormControl className="form-control">
-          <InputLabel id="model-select-label">Model</InputLabel>
-          <Select
-            labelId="model-select-label"
-            id="model-select"
-            value={model}
-            onChange={handleModelChange}
-            input={<OutlinedInput label="Model" />}
-            MenuProps={MenuProps}
-          >
-            {modelOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        {/* Search Type */}
-        <FormControl className="form-control">
-          <InputLabel id="search-type-select-label">Search Type</InputLabel>
-          <Select
-            labelId="search-type-select-label"
-            id="search-type-select"
-            value={searchType}
-            onChange={handleSearchTypeChange}
-            input={<OutlinedInput label="Search Type" />}
-            MenuProps={MenuProps}
-          >
-            {searchTypeOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className="title">Settings</div>
+        </AccordionSummary>
 
-        {(searchType === 'similarity' || searchType === 'mmr' || searchType === 'similarity_score_threshold') && (
-          <TextField
-            label="Number of Results (k)"
-            type="number"
-            value={k}
-            onChange={(e) => setK(parseInt(e.target.value))}
-            fullWidth
-            margin="normal"
-          />
-        )}
-
-        {searchType === 'mmr' && (
-          <>
+        <AccordionDetails>
+          <div className='select-box'>
+            {/* Topic */}
             <FormControl className="form-control">
-              <InputLabel id="fetch-k-select-label">Fetch K (MMR)</InputLabel>
+              <InputLabel id="first-select-label">Topics</InputLabel>
               <Select
-                labelId="fetch-k-select-label"
-                id="fetch-k-select"
-                value={fetchK}
-                onChange={(e) => setFetchK(parseInt(e.target.value))}
-                input={<OutlinedInput label="Fetch K (MMR)" />}
+                labelId="first-select-label"
+                id="first-select"
+                value={first}
+                onChange={handleFirstChange}
+                input={<OutlinedInput label="Topics" />}
                 MenuProps={MenuProps}
               >
-                {fetchKOptions.map((option) => (
+                {firstOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
-            <TextField
-              label="Lambda Mult (MMR)"
-              type="number"
-              value={lambdaMult}
-              onChange={(e) => setLambdaMult(parseFloat(e.target.value))}
-              fullWidth
-              margin="normal"
+            {/* Chain */}
+            <FormControl className="form-control">
+              <InputLabel id="chain-select-label">Retrieval Chain</InputLabel>
+              <Select
+                labelId="chain-select-label"
+                id="chain-select"
+                value={chain}
+                onChange={handleChainChange}
+                input={<OutlinedInput label="Retrieval Chain" />}
+                MenuProps={MenuProps}
+              >
+                {chainOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {/* Model */}
+            <FormControl className="form-control">
+              <InputLabel id="model-select-label">Model</InputLabel>
+              <Select
+                labelId="model-select-label"
+                id="model-select"
+                value={model}
+                onChange={handleModelChange}
+                input={<OutlinedInput label="Model" />}
+                MenuProps={MenuProps}
+              >
+                {modelOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {/* Search Type */}
+            <FormControl className="form-control">
+              <InputLabel id="search-type-select-label">Search Type</InputLabel>
+              <Select
+                labelId="search-type-select-label"
+                id="search-type-select"
+                value={searchType}
+                onChange={handleSearchTypeChange}
+                input={<OutlinedInput label="Search Type" />}
+                MenuProps={MenuProps}
+              >
+                {searchTypeOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {(searchType === 'similarity' || searchType === 'mmr' || searchType === 'similarity_score_threshold') && (
+              <TextField
+                label="Number of Results (k)"
+                type="number"
+                value={k}
+                onChange={(e) => setK(parseInt(e.target.value))}
+                fullWidth
+                margin="normal"
+              />
+            )}
+
+            {searchType === 'mmr' && (
+              <>
+                <FormControl className="form-control">
+                  <InputLabel id="fetch-k-select-label">Fetch K (MMR)</InputLabel>
+                  <Select
+                    labelId="fetch-k-select-label"
+                    id="fetch-k-select"
+                    value={fetchK}
+                    onChange={(e) => setFetchK(parseInt(e.target.value))}
+                    input={<OutlinedInput label="Fetch K (MMR)" />}
+                    MenuProps={MenuProps}
+                  >
+                    {fetchKOptions.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Lambda Mult (MMR)"
+                  type="number"
+                  value={lambdaMult}
+                  onChange={(e) => setLambdaMult(parseFloat(e.target.value))}
+                  fullWidth
+                  margin="normal"
+                />
+              </>
+            )}
+
+            {searchType === 'similarity_score_threshold' && (
+              <TextField
+                label="Score Threshold"
+                type="number"
+                value={scoreThreshold}
+                onChange={(e) => setScoreThreshold(parseFloat(e.target.value))}
+                fullWidth
+                margin="normal"
+              />
+            )}
+            <Button className="submit-button" variant="contained" color="primary" onClick={handleSubmit}>
+              Submit
+            </Button>
+          </div>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div className="title">Keyword Search</div>
+        </AccordionSummary>
+        <AccordionDetails>
+          <div className="keyword-search-box">
+            <Autocomplete
+              freeSolo
+              options={searchResults}
+              getOptionLabel={(option) => {
+                return typeof option === 'string' ? option : option.shortTitle || String(option.id);
+              }}
+              filterOptions={(options, state) => {
+                return options.filter((option) => {
+                  const label = option.shortTitle || String(option.id);
+                  return label.toLowerCase().includes(state.inputValue.toLowerCase()) ||
+                    String(option.id).includes(state.inputValue);
+                });
+              }}
+              inputValue={keyword}
+              onInputChange={(event, newInputValue) => {
+                handleKeywordChange(newInputValue);
+              }}
+              onChange={(event, newValue) => {
+                if (newValue) {
+                  setSelectedResult(newValue);
+                } else {
+                  setSelectedResult(null);
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Search by Title or ID"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
+              renderOption={(props, option) => (
+                <li {...props} key={option.id}>
+                  {option.shortTitle || String(option.id)}
+                </li>
+              )}
             />
-          </>
-        )}
 
-        {searchType === 'similarity_score_threshold' && (
-          <TextField
-            label="Score Threshold"
-            type="number"
-            value={scoreThreshold}
-            onChange={(e) => setScoreThreshold(parseFloat(e.target.value))}
-            fullWidth
-            margin="normal"
-          />
-        )}
-        <Button className="submit-button" variant="contained" color="primary" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </div>   
+            {error && <Alert severity="error">{error}</Alert>}
 
-      {/* snackbar */}
+            {selectedResult && (
+              <div className="search-results">
+                <div className="search-result-item" key={selectedResult.id}>
+                  <h3>{selectedResult.shortTitle}</h3>
+                  <p>Topic: {selectedResult.topic}</p>
+                  <p>Feedback Count: {selectedResult.totalFeedback}</p>
+                  <a href={selectedResult.links} target="_blank" rel="noopener noreferrer">
+                    Go to this initiative
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+        </AccordionDetails>
+      </Accordion>
+
+      {/* Snackbar */}
       <Snackbar 
         open={openSnackbar} 
         autoHideDuration={1200} 

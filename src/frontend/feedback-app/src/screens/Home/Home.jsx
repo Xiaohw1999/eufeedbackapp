@@ -194,11 +194,10 @@ export const Home = () => {
       <SwipeableDrawer
         anchor="left"
         sx={{
-          width: 385,
           flexShrink: 0,
           height: '100vh',
           '& .MuiDrawer-paper': {
-            width: 385,
+            width: 500,
             height: '100vh',
           },
         }}

@@ -13,6 +13,8 @@ from langchain_openai import ChatOpenAI
 from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch # test
 from langchain.memory import ConversationBufferMemory 
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Query
+from typing import List
 import logging
 import sys
 
@@ -77,6 +79,7 @@ client = MongoClient(
 )
 db_name = "metadata"
 collection_name = "processed_feedback_data"
+collection_search_name = "keywords_search_data"
 collection = client[db_name][collection_name]
 
 # Check for the OpenAI API key
@@ -105,11 +108,11 @@ vectors = MongoDBAtlasVectorSearch(
     relevance_score_fn="cosine",
 )
 
-memory = ConversationBufferMemory( 
-    memory_key='chat_history', 
-    return_messages=True,
-    output_key='answer'
-    ) 
+# memory = ConversationBufferMemory( 
+#     memory_key='chat_history', 
+#     return_messages=True,
+#     output_key='answer'
+#     ) 
 
 def create_conversational_chain(llm, retriever):
     prompt_template = """You are a helpful assistant providing detailed analysis and summaries of citizen feedback on EU laws and initiatives. 
@@ -130,16 +133,13 @@ def create_conversational_chain(llm, retriever):
     Contexts:
     {context}
     Question: {question}
-
-    Chat History:
-    {chat_history}
     """
     QA_CHAIN_PROMPT = ChatPromptTemplate.from_template(prompt_template)
     
     conversational_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=retriever,
-        memory=memory,
+        # memory=memory,
         combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT},
         return_source_documents=True,
         output_key='answer'
@@ -185,8 +185,8 @@ async def get_feedback(request: Request):
         data = await request.json()
         query = data.get("query")
         topic = data.get("topic")
-        chain_type = data.get("chain_type", "conversational")
-        model_name = data.get("model_name", "gpt-3.5-turbo")
+        chain_type = data.get("chain_type", "retrievalqa")
+        model_name = data.get("model_name", "gpt-4o-mini")
         search_type = data.get("search_type", "similarity")
         search_kwargs = data.get("search_kwargs", {'k': 5})
         if not query:
@@ -230,7 +230,31 @@ async def get_feedback(request: Request):
         logger.error(f"Error processing request: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-#solely for test & debug
+# api for keywords search
+collection_search = client[db_name][collection_search_name]
+
+@app.get("/search_keywords", response_model=List[dict])
+async def search_keywords(keyword: str = Query(..., min_length=1)):
+    if not keyword or keyword.strip() == "":
+        raise HTTPException(status_code=400, detail="Keyword parameter is required.")
+    
+    search_conditions = [
+        {"shortTitle": {"$regex": keyword, "$options": "i"}},
+        {"id": {"$regex": keyword, "$options": "i"}}
+    ]
+    results = list(collection_search.find(
+        {
+            "$or": search_conditions
+        },
+        {"_id": 0, "id": 1, "shortTitle": 1, "topic": 1, "totalFeedback": 1, "links": 1}
+    ))
+    
+    if not results:
+        raise HTTPException(status_code=404, detail="No matching documents found.")
+    
+    return results
+
+# solely for test & debug
 @app.get("/test")
 def test_endpoint():
     print("Test endpoint called!")

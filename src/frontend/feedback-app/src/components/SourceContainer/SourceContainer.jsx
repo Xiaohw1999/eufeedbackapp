@@ -38,7 +38,7 @@ const SourceContainer = ({ sources, loading }) => {
       <h3>SOURCES</h3>
       {loading ? (
         <div className="loading-container">
-          <CircularProgress size={30}/>
+          <CircularProgress size={30} />
         </div>
       ) : (
         <>

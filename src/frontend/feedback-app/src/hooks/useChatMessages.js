@@ -19,7 +19,7 @@ const useChatMessages = () => {
 
       try {
         // send inputValue to backend
-        const res = await axios.post("https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/query", {
+        const res = await axios.post("http://0.0.0.0:8080/query", {
           query: inputValue.trim(),
           topic: selectedTopic // topic
         });
@@ -45,7 +45,7 @@ const useChatMessages = () => {
     setError(null);
 
     try {
-      const res = await axios.post("https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/query", {
+      const res = await axios.post("http://0.0.0.0:8080/query", {
         query: question,
       });
 

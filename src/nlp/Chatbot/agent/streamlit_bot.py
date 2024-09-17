@@ -4,7 +4,7 @@ import streamlit as st
 
 # Set chatbot URL
 # CHATBOT_URL = os.getenv("CHATBOT_URL", "http://localhost:8080/query")
-CHATBOT_URL = os.getenv("CHATBOT_LOCAL", "http://localhost:8000/query")
+CHATBOT_URL = os.getenv("CHATBOT_LOCAL", "http://0.0.0.0:8080/query")
 
 # Sidebar configuration
 with st.sidebar:

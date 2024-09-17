@@ -70,12 +70,18 @@ def parse_parameters(topic=None):
 ATLAS_TOKEN = os.environ["ATLAS_TOKEN"]
 ATLAS_USER = os.environ["ATLAS_USER"]
 # Initialize MongoDB Connection
-client = MongoClient(
-    "mongodb+srv://{}:{}@cluster0.9tj38oe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0".format(
-            ATLAS_USER, ATLAS_TOKEN)
-)
-db_name = "metadata"
-collection_name = "processed_feedback_data"
+# client = MongoClient(
+#     "mongodb+srv://{}:{}@cluster0.9tj38oe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0".format(
+#             ATLAS_USER, ATLAS_TOKEN)
+# )
+
+uri = f"mongodb+srv://{ATLAS_USER}:{ATLAS_TOKEN}@cluster0.nn50y.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+client = MongoClient(uri)
+
+# uri = 'mongodb://localhost:27017/'
+# client = MongoClient(uri)
+db_name = "citizen_feedback"
+collection_name = "AGRI_embedded_data"
 collection = client[db_name][collection_name]
 
 # Check for the OpenAI API key
@@ -153,9 +159,9 @@ async def get_feedback(request: Request):
         # Set up the retriever with pre-filter
         retriever = vectors.as_retriever(
             search_type='similarity',
+            filter=pre_filter_conditions,
             search_kwargs={
                 'k': 5,  # Retrieve the top 5 most relevant documents
-                'filter': pre_filter_conditions  # Apply the pre-filter conditions here
             }
         )
         
@@ -194,7 +200,7 @@ async def get_feedback(request: Request):
 
         source_documents = response.get('source_documents', [])
         sources = [{"text": doc.page_content} for doc in source_documents]
-        print(sources[0])
+        # print(sources[0])
         return {"response": answer, "sources": sources}
 
     except Exception as e:
@@ -213,6 +219,4 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
     
     # uvicorn feedback_chain:app --reload
-    
 # scp -i "D:\aws_key\aws_node.pem" "D:\visualstudiocode\project\eufeedbackapp\src\nlp\Chatbot\chain\feedback_chain.py" ec2-user@ec2-16-171-132-28.eu-north-1.compute.amazonaws.com:/home/ec2-user/eufeedbackapp
-    

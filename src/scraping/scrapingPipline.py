@@ -273,8 +273,12 @@ if __name__ == "__main__":
     from aiohttp_retry import RetryClient, ExponentialRetry
     from aiohttp.client_exceptions import ClientOSError
     
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
-    sys.path.append(project_root)
+    # project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
+    # sys.path.append(project_root)
+    # Add the parent directory of 'scraping' to sys.path
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(parent_dir)
+
     from configLoader import config
     
     SRC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

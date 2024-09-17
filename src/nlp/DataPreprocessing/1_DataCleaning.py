@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
         # Save processed data to a new file
         output_path = os.path.join(data_dir, 'processed_data.csv')
-        final_df.to_csv(output_path, index=False)
+        final_df.to_csv(output_path, index=False, escapechar='\\')
     
     
     

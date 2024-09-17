@@ -33,6 +33,9 @@ def main():
     password = os.getenv('ATLAS_TOKEN')
 
     uri = f"mongodb+srv://{username}:{password}@cluster0.9tj38oe.mongodb.net/<database>?retryWrites=true&w=majority"
+    uri = f"mongodb+srv://{username}:{password}@cluster0.nn50y.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+    # uri = 'mongodb://localhost:27017/'
     client = pymongo.MongoClient(uri)
     db = client['citizen_feedback']
     collection = db['AGRI_embedded_data']

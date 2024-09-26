@@ -122,7 +122,7 @@ export const Home = () => {
               <Title
                 className="title-instance"
                 property1={property}
-                text="Civic Feedback Enhancer"
+                text="Citizen Feedback Enhancer"
                 visible={true}
               />
               <div className="subtitle">

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import "./style.css";
 
-export const Title = ({ className, property1, text = "CItizen Feedback Enhancer", visible = true }) => {
+export const Title = ({ className, property1, text = "Citizen Feedback Enhancer", visible = true }) => {
   if (!visible) return null;
 
   return (

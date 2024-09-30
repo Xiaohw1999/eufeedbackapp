@@ -81,6 +81,7 @@ client = MongoClient(
 db_name = "metadata"
 collection_name = "processed_feedback_data"
 collection_search_name = "keywords_search_data"
+collection_summary_name = "initialtives_summary_data"
 collection = client[db_name][collection_name]
 
 # Check for the OpenAI API key
@@ -311,6 +312,54 @@ async def search_keywords(keyword: str = Query(..., min_length=1)):
         raise HTTPException(status_code=404, detail="No matching documents found.")
     
     return results
+
+# api for initiatives summary
+initiatives_summary = client[db_name][collection_summary_name]
+from fastapi import HTTPException, Query
+
+@app.post("/generate_summary/{initiative_id}")
+async def generate_summary(initiative_id: str):
+    """
+    generate summary for the given initiative
+    """
+    initiative = collection_search.find_one({"id": initiative_id}, {"_id": 0, "attachments": 1})
+    
+    # if initiative does not exist, return 404
+    if not initiative:
+        raise HTTPException(status_code=404, detail="Initiative not found.")
+    
+    # get the first attachment
+    attachments = initiative.get("attachments", [])
+    if not attachments or len(attachments) == 0:
+        raise HTTPException(status_code=404, detail="No attachments found for this initiative.")
+    
+    attachment = attachments[0]
+    attachment_text = attachment.get('text', '')
+    attachment_title = attachment.get('title', 'No Title')
+
+    if not attachment_text:
+        raise HTTPException(status_code=404, detail="Attachment content not found.")
+    
+    # summarize
+    llm = ChatOpenAI(temperature=0.5, model_name="gpt-4o-mini", openai_api_key=api_key)
+    summary_prompt = f"请对以下附件生成详细总结：\n\n{attachment_text}\n\n附件标题: {attachment_title}"
+    
+    # generate summary with chain
+    summary_chain = LLMChain(llm=llm, prompt=PromptTemplate(input_variables=["attachment_text", "attachment_title"], template=summary_prompt))
+    summary_response = summary_chain.invoke({
+        "attachment_text": attachment_text,
+        "attachment_title": attachment_title
+    })
+
+    summary = summary_response.get('text', 'No summary generated.')
+    
+    return {
+        "initiative_id": initiative_id,
+        "attachment_title": attachment_title,
+        "summary": summary
+    }
+
+
 
 # solely for test & debug
 @app.get("/test")

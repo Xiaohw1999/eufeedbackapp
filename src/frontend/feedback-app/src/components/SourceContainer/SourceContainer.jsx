@@ -6,6 +6,7 @@ import "./style.css";
 
 const parseSourceText = (text) => {
   const titleMatch = text.match(/Title:\s*([^;]*);/);
+  const idMatch = text.match(/Title:\s*([^;]*);/);
   const contentMatch = text.match(/Content:\s*([^;]*);/);
   const userTypeMatch = text.match(/UserType:\s*([^;]*);/);
   const countryMatch = text.match(/Country:\s*([^;]*);/);
@@ -13,6 +14,7 @@ const parseSourceText = (text) => {
 
   return {
     title: titleMatch ? titleMatch[1].trim() : "N/A",
+    id: idMatch ? idMatch[1].trim() : "N/A",
     content: contentMatch ? contentMatch[1].trim() : "N/A",
     userType: userTypeMatch ? userTypeMatch[1].trim() : "N/A",
     country: countryMatch ? countryMatch[1].trim() : "N/A",
@@ -56,6 +58,7 @@ const SourceContainer = ({ sources, loading }) => {
               return (
                 <div key={index} className="source-item">
                   <p><strong>Title:</strong> {parsedSource.title}</p>
+                  <p><strong>ID:</strong> {parsedSource.id}</p>
                   <p><strong>Content:</strong> {parsedSource.content}</p>
                   <p><strong>User Type:</strong> {parsedSource.userType}</p>
                   <p><strong>Country:</strong> {parsedSource.country}</p>

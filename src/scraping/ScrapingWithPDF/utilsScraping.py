@@ -55,6 +55,7 @@ url_initiatives_id = "https://ec.europa.eu/info/law/better-regulation/brpapi/sea
 url_publication_id = 'https://ec.europa.eu/info/law/better-regulation/brpapi/groupInitiatives/'
 url_feedback_info = "https://ec.europa.eu/info/law/better-regulation/api/allFeedback?publicationId={}&keywords=&language=EN&page={}&size=10&sort=dateFeedback,DESC"
 
+
 def convert_objectid_to_str(data):
     if isinstance(data, list):
         return [convert_objectid_to_str(item) for item in data]

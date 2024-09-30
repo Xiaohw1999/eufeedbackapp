@@ -79,9 +79,10 @@ def process_feedback(feedback, base_info):
                     logger.info(f"Deleted temporary file: {pdf_path}")
     
     embedding = get_embedding(cleaned_feedback)
-    combined = f"Title: {base_info['shortTitle'].strip()}; Content: {cleaned_feedback}; UserType: {feedback.get('userType', '').strip()}; Country: {feedback.get('country', '').strip()}; Organization: {feedback.get('organization', '').strip()}"
+    combined = f"Title: {base_info['shortTitle'].strip()}; ID: {base_info['id'].strip()}; Content: {cleaned_feedback}; UserType: {feedback.get('userType', '').strip()}; Country: {feedback.get('country', '').strip()}; Organization: {feedback.get('organization', '').strip()}"
     
     cleaned_item = {
+        'initiative_id': base_info['id'],
         'feedback_id': feedback['id'],
         'shortTitle': base_info['shortTitle'],
         'topic': base_info['topic'],

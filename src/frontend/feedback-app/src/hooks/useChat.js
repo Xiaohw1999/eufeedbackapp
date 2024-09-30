@@ -5,7 +5,7 @@ import useChatMessages from "./useChatMessages";
 const useChat = () => {
   const { inputValue, setInputValue, textareaRef, handleInputChange } = useInput("");
   const { isListening, handleVoiceInput } = useVoiceRecognition(setInputValue);
-  const { messages, startedChat, handleSend, handleSuggestionClick, loading, error, sources } = useChatMessages();
+  const { messages, startedChat, handleSend, handleSuggestionClick, loading, error, sources, scores} = useChatMessages();
 
   return {
     inputValue,
@@ -21,7 +21,8 @@ const useChat = () => {
     handleSuggestionClick,
     loading,
     error,
-    sources
+    sources,
+    scores
   };
 };
 

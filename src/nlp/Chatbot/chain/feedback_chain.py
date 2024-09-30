@@ -1,19 +1,20 @@
 # feedback_chain.py
-
+import re
 import os
 import dotenv
 import pandas as pd
 from pymongo import MongoClient
 from fastapi import FastAPI, HTTPException, Request
 from langchain_openai import OpenAIEmbeddings
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate, PipelinePromptTemplate
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains import RetrievalQA, ConversationalRetrievalChain
+from langchain.chains import RetrievalQA, ConversationalRetrievalChain, LLMChain
 from langchain_openai import ChatOpenAI
 from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch # test
 from langchain.memory import ConversationBufferMemory 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Query
+from fastapi import BackgroundTasks
 from typing import List
 import logging
 import sys
@@ -160,8 +161,59 @@ def create_retrieval_qa_chain(llm, retriever):
     
     return qa_chain
 
+
+''' Score Function Design, design a evaluation method to evaluate the quality and relevance of query, answer and source documents'''
+# define templates for evaluation
+scoring_prompt_template = """
+Please evaluate the following question, answer, and source data based on three dimensions. For each dimension, provide a score from 2 to 10 according to the provided criteria.
+
+### Dimension 1: Relevance between the question and the answer
+- **2 points**: The answer has no relevance to the question.
+- **4 points**: The answer has minimal relevance but is mostly unrelated to the question.
+- **6 points**: The answer is moderately relevant to the question but has some discrepancies.
+- **8 points**: The answer is mostly relevant to the question with only minor omissions or irrelevant information.
+- **10 points**: The answer is fully relevant and directly addresses the user's question.
+
+### Dimension 2: Relevance between the question and the source data
+- **2 points**: The source data has no relevance to the question.
+- **4 points**: The source data has minimal relevance but is mostly unrelated to the question.
+- **6 points**: The source data is moderately relevant but contains some irrelevant information.
+- **8 points**: The source data is mostly relevant to the question with only minor irrelevant information.
+- **10 points**: The source data is fully relevant and directly addresses the user's question.
+
+### Dimension 3: Alignment between the answer and the source data
+- **2 points**: The answer has no alignment with the source data.
+- **4 points**: The answer has minimal alignment with the source data but is mostly unrelated.
+- **6 points**: The answer is moderately aligned with the source data but contains inaccuracies or inconsistencies.
+- **8 points**: The answer is mostly aligned with the source data but has minor omissions or slight inaccuracies.
+- **10 points**: The answer is fully aligned and accurate based on the source data.
+
+### Task:
+Evaluate the following:
+
+**User question**: {question}
+**Generated answer**: {answer}
+**Source data**: {source}
+
+Please provide only the score for each dimension as a number between 2 and 10.
+Example: 0, 0, 0
+"""
+
+scoring_llm = ChatOpenAI(temperature=0.0, model_name="gpt-4o-mini", openai_api_key=api_key)
+scoring_prompt = PromptTemplate(
+            input_variables=["question", "answer", "source"],
+            template=scoring_prompt_template
+        )
+combined_scoring_chain = LLMChain(llm=scoring_llm, prompt=scoring_prompt)
+
+# support function for extracting scores from the response
+def extract_scores(response_text):
+    scores = re.findall(r'\b\d+\b', response_text)
+    return [int(score) for score in scores] if scores else None
+
+
 @app.post("/query")
-async def get_feedback(request: Request):
+async def get_feedback(request: Request, backgroudnd_tasks: BackgroundTasks):
     try:
         data = await request.json()
         query = data.get("query")
@@ -204,8 +256,33 @@ async def get_feedback(request: Request):
 
         source_documents = response.get('source_documents', [])
         sources = [{"text": doc.page_content} for doc in source_documents]
-        print(sources[0])
-        return {"response": answer, "sources": sources}
+
+        # implement scoreing chain
+        source_text = "; ".join([doc["text"] for doc in sources])
+        scoring_response = combined_scoring_chain.invoke({
+            "question": query,
+            "answer": answer,
+            "source": source_text
+        })
+        print('scoring_response', scoring_response["text"])
+        scores = extract_scores(scoring_response["text"])
+        if scores and len(scores) == 3:
+            score_qa, score_qs, score_as = scores
+        else:
+            raise HTTPException(status_code=500, detail="Failed to extract scores from GPT response.")
+        
+        # Log the scores
+        logging.info(f"Scores: QA - {score_qa}, QS - {score_qs}, AS - {score_as}")
+        
+        return {
+            "response": answer,
+            "sources": sources,
+            "scores": {
+                "question_answer_relevance": score_qa,
+                "question_source_relevance": score_qs,
+                "answer_source_alignment": score_as
+            }
+        }
 
     except Exception as e:
         logger.error(f"Error processing request: {e}", exc_info=True)

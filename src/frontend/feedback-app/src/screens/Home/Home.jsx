@@ -28,7 +28,8 @@ export const Home = () => {
     handleSuggestionClick,
     loading,
     error,
-    sources
+    sources,
+    scores
   } = useChat();
 
   const [selectedTopic, setSelectedTopic] = useState(null);
@@ -115,6 +116,7 @@ export const Home = () => {
             loading={loading}
             error={error}
             sources={sources}
+            scores={scores}
           />
         ) : (
           <div className="contents">

@@ -8,6 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import "./style.css";
 import { RiRobot2Line } from "react-icons/ri";
 import SourceContainer from "../SourceContainer/SourceContainer";
+import RatingContainer from "../RatingContainer/RatingContainer";
 
 const ChatContainer = ({ 
   inputValue, 
@@ -19,7 +20,8 @@ const ChatContainer = ({
   messages,
   loading,
   error,
-  sources
+  sources,
+  scores
 }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -49,7 +51,9 @@ const ChatContainer = ({
         </div>
       </div>
       <div className="main-content">
-        <div className="left-content"></div>
+        <div className="left-content">
+          <RatingContainer scores={scores}/>
+        </div>
         <div className="chat-content">
           <div className="messages-container">
             <div className="messages-content">

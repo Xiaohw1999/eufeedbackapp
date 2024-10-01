@@ -8,11 +8,14 @@ function useKeywordSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedResult, setSelectedResult] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
   const handleKeywordChange = (newValue) => {
     setKeyword(newValue);
   };
 
+  // api for searching keywords
   const handleKeywordSearch = useCallback(async () => {
     if (!keyword.trim()) {
       setError('Please enter a keyword to search.');
@@ -47,6 +50,23 @@ function useKeywordSearch() {
     }
   }, [keyword]);
 
+  // api for generate summary
+  const generateSummary = useCallback(async (initiative_id) => {
+    setIsGeneratingSummary(true);
+    setSummary(null);
+    try {
+      const response = await axios.post(
+        `https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/generate_summary/${initiative_id}`
+      );
+      setSummary(response.data.summary);
+    } catch (error) {
+      console.error("Error generating summary:", error);
+      setSummary('Failed to generate summary.');
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  }, []);
+
   const debouncedSearch = useCallback(debounce(handleKeywordSearch, 1000), [handleKeywordSearch]);
 
   useEffect(() => {
@@ -73,6 +93,10 @@ function useKeywordSearch() {
     handleKeywordSearch,
     selectedResult,
     setSelectedResult,
+    generateSummary,
+    summary,
+    isGeneratingSummary,
+    setSummary,
   };
 }
 

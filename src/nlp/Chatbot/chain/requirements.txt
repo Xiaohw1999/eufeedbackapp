@@ -8,6 +8,7 @@ langchain-core
 langchain-mongodb
 langchain
 streamlit
-pypdf
+pymupdf==1.24.6
+requests==2.31.0
 faiss-cpu
 simsimd==3.7.7

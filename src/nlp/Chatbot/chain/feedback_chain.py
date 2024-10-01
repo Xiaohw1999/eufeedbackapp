@@ -18,6 +18,10 @@ from fastapi import BackgroundTasks
 from typing import List
 import logging
 import sys
+import fitz
+import requests
+import tempfile
+import httpx
 
 # utf-8
 sys.stdout.reconfigure(encoding='utf-8')
@@ -37,7 +41,10 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    max_age=86400
 )
+
+client = httpx.Client(timeout=60)
 
 # Define parse_parameters function to create filter conditions
 def parse_parameters(topic=None):
@@ -81,7 +88,7 @@ client = MongoClient(
 db_name = "metadata"
 collection_name = "processed_feedback_data"
 collection_search_name = "keywords_search_data"
-collection_summary_name = "initialtives_summary_data"
+collection_summary_name = "initiatives_summary_data"
 collection = client[db_name][collection_name]
 
 # Check for the OpenAI API key
@@ -315,39 +322,72 @@ async def search_keywords(keyword: str = Query(..., min_length=1)):
 
 # api for initiatives summary
 initiatives_summary = client[db_name][collection_summary_name]
-from fastapi import HTTPException, Query
+
+def download_pdf_to_tempfile(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    
+    # create a temporary file to save the PDF
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    temp_file.write(response.content)
+    temp_file.flush()
+    temp_file.seek(0)
+    
+    logger.info(f"Downloaded PDF to temporary file: {temp_file.name}")
+    return temp_file.name
+
+def extract_text_from_pdf(file_path):
+    document = fitz.open(file_path)
+    text = ""
+    
+    # traverse each page and extract text
+    for page_num in range(len(document)):
+        page = document.load_page(page_num)
+        text += page.get_text()
+    
+    logger.info(f"Extracted text from PDF: {file_path}")
+    return text
 
 @app.post("/generate_summary/{initiative_id}")
-async def generate_summary(initiative_id: str):
+async def generate_summary(initiative_id):
     """
-    generate summary for the given initiative
+    Generate summary for the given initiative.
     """
-    initiative = collection_search.find_one({"id": initiative_id}, {"_id": 0, "attachments": 1})
+    initiative_id = str(initiative_id)
+    initiative = initiatives_summary.find_one({"initiative_id": initiative_id}, {"_id": 0, "attachments": 1})
     
-    # if initiative does not exist, return 404
+    # If initiative does not exist, return 404
     if not initiative:
         raise HTTPException(status_code=404, detail="Initiative not found.")
     
-    # get the first attachment
+    # Get the first attachment
     attachments = initiative.get("attachments", [])
     if not attachments or len(attachments) == 0:
         raise HTTPException(status_code=404, detail="No attachments found for this initiative.")
     
     attachment = attachments[0]
-    attachment_text = attachment.get('text', '')
+    attachment_url = attachment.get('downloadUrl', '')
     attachment_title = attachment.get('title', 'No Title')
 
-    if not attachment_text:
-        raise HTTPException(status_code=404, detail="Attachment content not found.")
+    if not attachment_url:
+        raise HTTPException(status_code=404, detail="Attachment download URL not found.")
     
-    # summarize
+    try:
+        # Download the PDF and extract text
+        pdf_file_path = download_pdf_to_tempfile(attachment_url)
+        extracted_text = extract_text_from_pdf(pdf_file_path)
+    except Exception as e:
+        logger.error(f"Error during PDF download or text extraction: {e}")
+        raise HTTPException(status_code=500, detail="Failed to download or extract text from PDF.")
+    
+    # Summarize the extracted text
     llm = ChatOpenAI(temperature=0.5, model_name="gpt-4o-mini", openai_api_key=api_key)
-    summary_prompt = f"请对以下附件生成详细总结：\n\n{attachment_text}\n\n附件标题: {attachment_title}"
+    summary_prompt = f"Please summarize the following text in less than 150 words: \n\n{extracted_text}\n\ntitle: {attachment_title}"
     
-    # generate summary with chain
-    summary_chain = LLMChain(llm=llm, prompt=PromptTemplate(input_variables=["attachment_text", "attachment_title"], template=summary_prompt))
+    # Generate summary with chain
+    summary_chain = LLMChain(llm=llm, prompt=PromptTemplate(input_variables=["extracted_text", "attachment_title"], template=summary_prompt))
     summary_response = summary_chain.invoke({
-        "attachment_text": attachment_text,
+        "extracted_text": extracted_text,
         "attachment_title": attachment_title
     })
 
@@ -358,8 +398,6 @@ async def generate_summary(initiative_id: str):
         "attachment_title": attachment_title,
         "summary": summary
     }
-
-
 
 # solely for test & debug
 @app.get("/test")
@@ -372,7 +410,7 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)
     
-    # uvicorn feedback_chain:app --reload
+    # python -m uvicorn feedback_chain:app --reload
     
 # scp -i "D:\aws_key\aws_node.pem" "D:\visualstudiocode\project\eufeedbackapp\src\nlp\Chatbot\chain\feedback_chain.py" ec2-user@ec2-16-171-132-28.eu-north-1.compute.amazonaws.com:/home/ec2-user/eufeedbackapp
 # sudo systemctl restart my-fastapi-app.service

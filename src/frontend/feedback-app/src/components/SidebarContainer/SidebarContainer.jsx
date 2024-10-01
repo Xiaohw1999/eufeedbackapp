@@ -153,6 +153,10 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
     handleKeywordSearch,
     selectedResult,
     setSelectedResult,
+    generateSummary,
+    summary,
+    isGeneratingSummary,
+    setSummary
   } = useKeywordSearch();
 
   return (
@@ -320,8 +324,10 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
               onChange={(event, newValue) => {
                 if (newValue) {
                   setSelectedResult(newValue);
+                  setSummary(null);
                 } else {
                   setSelectedResult(null);
+                  setSummary(null);
                 }
               }}
               renderInput={(params) => (
@@ -360,6 +366,21 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
                   <a href={selectedResult.links} target="_blank" rel="noopener noreferrer">
                     Go to this initiative
                   </a>
+                  <div className='summary-button'>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => generateSummary(selectedResult.id)}
+                      disabled={isGeneratingSummary}
+                    >
+                      {isGeneratingSummary ? 'Generating...' : 'Generate Summary'}
+                    </Button>
+                  </div>
+                  {summary && (
+                    <div className="summary-result">
+                      <p>{summary}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

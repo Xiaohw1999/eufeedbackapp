@@ -199,7 +199,7 @@ export const Home = () => {
           flexShrink: 0,
           height: '100vh',
           '& .MuiDrawer-paper': {
-            width: 500,
+            width: 670,
             height: '100vh',
           },
         }}

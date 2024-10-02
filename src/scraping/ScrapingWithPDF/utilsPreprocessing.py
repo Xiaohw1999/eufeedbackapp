@@ -12,7 +12,8 @@ database_test = 'test'
 database_metadata = 'metadata'
 metadata_collection_name = 'feedbackinfo_data'
 processeddata_collection_name = 'processed_feedback_data'
-progress_collection_name = 'processing_progress'
+# progress_collection_name = 'processing_progress'
+progress_collection_name = 'processing_record'
 
 # Initialize OpenAI API key
 api_key = os.getenv("OPENAI_API_KEY")

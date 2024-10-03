@@ -80,7 +80,7 @@ def process_feedback(feedback, base_info):
                     logger.info(f"Deleted temporary file: {pdf_path}")
     
     embedding = get_embedding(cleaned_feedback)
-    combined = f"Title: {base_info['shortTitle'].strip()}; ID: {base_info['id'].strip()}; Content: {cleaned_feedback}; UserType: {feedback.get('userType', '').strip()}; Country: {feedback.get('country', '').strip()}; Organization: {feedback.get('organization', '').strip()}"
+    combined = f"Title: {base_info['shortTitle'].strip()}; ID: {base_info['id']}; Content: {cleaned_feedback}; UserType: {feedback.get('userType', '').strip()}; Country: {feedback.get('country', '').strip()}; Organization: {feedback.get('organization', '').strip()}"
     
     cleaned_item = {
         'initiative_id': base_info['id'],
@@ -106,7 +106,7 @@ def process_feedback(feedback, base_info):
     logger.info(f"Processed feedback ID: {feedback['id']} with combined text")
     return cleaned_item
 
-def process_and_clean_metadata(database, batch_size=200):
+def process_and_clean_metadata(database, batch_size=20):
     username = os.getenv('ATLAS_USER')
     password = os.getenv('ATLAS_TOKEN')
     if not username or not password:

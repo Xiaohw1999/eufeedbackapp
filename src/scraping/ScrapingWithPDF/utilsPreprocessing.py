@@ -106,7 +106,7 @@ def process_feedback(feedback, base_info):
     logger.info(f"Processed feedback ID: {feedback['id']} with combined text")
     return cleaned_item
 
-def process_and_clean_metadata(database, batch_size=20):
+def process_and_clean_metadata(database, batch_size=200):
     username = os.getenv('ATLAS_USER')
     password = os.getenv('ATLAS_TOKEN')
     if not username or not password:

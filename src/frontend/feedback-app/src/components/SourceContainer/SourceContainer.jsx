@@ -6,7 +6,7 @@ import "./style.css";
 
 const parseSourceText = (text) => {
   const titleMatch = text.match(/Title:\s*([^;]*);/);
-  const idMatch = text.match(/Title:\s*([^;]*);/);
+  const idMatch = text.match(/ID:\s*([^;]*);/);
   const contentMatch = text.match(/Content:\s*([^;]*);/);
   const userTypeMatch = text.match(/UserType:\s*([^;]*);/);
   const countryMatch = text.match(/Country:\s*([^;]*);/);

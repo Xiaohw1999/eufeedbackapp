@@ -38,6 +38,18 @@
   flex: 0 0 auto;
 }
 
+.home .tooltip-text {
+  margin-left: 8px;
+  font-size: 14px;
+  color: var(--white-64);
+  font-family: var(--subtitle-1-font-family);
+  font-size: var(--subtitle-1-font-size);
+  font-style: var(--subtitle-1-font-style);
+  font-weight: var(--subtitle-1-font-weight);
+  letter-spacing: var(--subtitle-1-letter-spacing);
+  line-height: var(--subtitle-1-line-height);
+}
+
 .home .navigation-bar .menu {
   position: absolute;
   left: 50%;

@@ -13,6 +13,7 @@ import { IconButton, Popover, SwipeableDrawer } from "@mui/material";
 import NaviContainer from "../../components/NaviContainer/NaviContainer";
 import SidebarContainer from "../../components/SidebarContainer/SidebarContainer";
 import ListIcon from '@mui/icons-material/List';
+import { purple } from '@mui/material/colors';
 
 export const Home = () => {
   const { 
@@ -80,7 +81,8 @@ export const Home = () => {
         <div className="navigation-bar">
           <div className="side-bar">
             <IconButton edge="start" color="inherit" onClick={handleDrawerToggle(true)}>
-              <ListIcon className="list-icon" color="primary"/>
+              <ListIcon className="list-icon" sx={{ color: purple[500] }}/>
+              <span className="tooltip-text">More Functions Are Here</span>
             </IconButton>
           </div>
           <div className="menu">

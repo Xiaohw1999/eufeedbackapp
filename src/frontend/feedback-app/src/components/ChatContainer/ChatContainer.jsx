@@ -40,19 +40,20 @@ const ChatContainer = ({
               className="text-wrapper-2"
               placeholder="Tell me something about..."
               rows={1}
+              disabled={loading}
             />
           </div>
-          <button onClick={handleVoiceInput} className="voice-button">
+          <button onClick={handleVoiceInput} className="voice-button" disabled={loading}>
             <VuesaxTwotoneMicrophone1 className="icon-instance-node" />
           </button>
-          <button onClick={handleSubmit} className="send-button">
+          <button onClick={handleSubmit} className="send-button" disabled={loading}>
             <OutlineArrowCircleUp className="outline-arrow-circle-up" color='var(--black)' />
           </button>
         </div>
       </div>
       <div className="main-content">
         <div className="left-content">
-          <RatingContainer scores={scores}/>
+          <RatingContainer scores={scores} />
         </div>
         <div className="chat-content">
           <div className="messages-container">

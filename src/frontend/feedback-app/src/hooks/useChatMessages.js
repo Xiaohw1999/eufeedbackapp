@@ -33,6 +33,7 @@ const useChatMessages = () => {
         setMessages(prevMessages => [...prevMessages, responseMessage]);
         setSources(res.data.sources || []);
         setScores(res.data.scores || null);
+
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Error fetching data. Please try again.");

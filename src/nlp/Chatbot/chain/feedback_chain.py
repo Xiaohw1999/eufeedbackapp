@@ -13,8 +13,7 @@ from langchain_openai import ChatOpenAI
 from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch # test
 from langchain.memory import ConversationBufferMemory 
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Query
-from fastapi import BackgroundTasks
+from fastapi import Query, BackgroundTasks
 from typing import List
 import logging
 import sys
@@ -55,25 +54,8 @@ def parse_parameters(topic=None):
     Returns:
     - dict: Constructed search conditions to be used in MongoDB Atlas VectorSearch.
     """
-    must_conditions = []
-
-    # Add topic condition
     if topic:
-        filter = {
-            "text": {
-                "path": "topic",
-                "query": topic,
-            }
-        }
-        must_conditions.append(filter)
-
-    # Return the constructed conditions
-    if must_conditions:
-        return {
-            "compound": {
-                "must": must_conditions
-            }
-        }
+        return {'topic': topic}
     else:
         return {}
 
@@ -110,7 +92,7 @@ embeddings = OpenAIEmbeddings(openai_api_key=api_key,
 # Initialize vector search with pre-filter
 vectors = MongoDBAtlasVectorSearch(
     collection=collection, 
-    index_name='metadata_vector_index',
+    index_name='new_data_index',
     embedding=embeddings, 
     text_key='combined',
     embedding_key='embedding',
@@ -219,9 +201,8 @@ def extract_scores(response_text):
     scores = re.findall(r'\b\d+\b', response_text)
     return [int(score) for score in scores] if scores else None
 
-
 @app.post("/query")
-async def get_feedback(request: Request, backgroudnd_tasks: BackgroundTasks):
+async def get_feedback(request: Request, background_tasks: BackgroundTasks):
     try:
         data = await request.json()
         query = data.get("query")
@@ -238,8 +219,8 @@ async def get_feedback(request: Request, backgroudnd_tasks: BackgroundTasks):
         
         # Generate pre-filter conditions using parse_parameters
         pre_filter_conditions = parse_parameters(topic=topic)
-        search_kwargs['filter'] = pre_filter_conditions
-        
+        search_kwargs['pre_filter'] = pre_filter_conditions
+        logger.info(f"Search kwargs: {search_kwargs}")
         # Dynamically create the LLM based on model_name
         llm = ChatOpenAI(temperature=0.5, model_name=model_name, openai_api_key=api_key)
         

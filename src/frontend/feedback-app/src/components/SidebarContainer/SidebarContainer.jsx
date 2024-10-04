@@ -123,6 +123,7 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
   const handleSubmit = () => {
     const topic = first === 'Any' ? null : first;
     setSelectedTopic(topic);
+    console.log(topic);
     setSelectedChain(chain);
     setSelectedModel(model);
     setSearchOptions({

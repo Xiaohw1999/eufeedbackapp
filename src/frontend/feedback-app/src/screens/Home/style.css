@@ -40,7 +40,7 @@
 .home .tooltip-text {
   margin-left: 8px;
   color: var(--color-black);
-  font-family: var(--font-family-sixth);
+  font-family: var(--font-family-gpt);
   font-size: var(--body-font-size);
   line-height: var(--subtitle-1-line-height);
 }
@@ -93,7 +93,7 @@
 
 .home .text-wrapper {
   color: var(--color-black-light);
-  font-family: var(--font-family-sixth);
+  font-family: var(--font-family-gpt);
   font-size: var(--subtitle-font-size);
   font-weight: var(--subtitle-font-weight);
   line-height: var(--subtitle-line-height);

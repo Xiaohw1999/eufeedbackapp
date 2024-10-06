@@ -87,9 +87,9 @@ export const Home = () => {
             </IconButton>
           </div>
           <div className="menu">
-            <IconButton edge="start" color="inherit" onClick={handleMenuClick}>
+            {/* <IconButton edge="start" color="inherit" onClick={handleMenuClick}>
               <VuesaxBulkMenu1 className="vuesax-bulk-menu" />
-            </IconButton>
+            </IconButton> */}
           </div>
           <Popover
             anchorEl={anchorEl}
@@ -159,30 +159,30 @@ export const Home = () => {
             <div className="bottom">
               <div className="text-wrapper-3">You may ask</div>
               <div className="boxes">
-                <div className="suggestion-card" onClick={() => handleSuggestionClick("What is the role of the European Rural Parliament (ERP) in shaping the vision for rural areas in Europe?")}>
+                <div className="suggestion-card" onClick={() => handleSuggestionClick("How do stakeholders view the EU's Renewable Energy Directive and its impact on energy transition?")}>
                   <p className="suggestion-question">
-                    <span className="lineup">What is the role of the European Rural Parliament (ERP) </span>
-                    <span className="linedown">in shaping the vision for rural areas in Europe?</span>
+                    <span className="lineup">How do stakeholders view the EU's Renewable Energy Directive </span>
+                    <span className="linedown">and its impact on energy transition?</span>
                   </p>
                   <div className="frame-2">
                     <div className="text-wrapper-5">Ask this</div>
                     <VuesaxLinearFlash5 className="vuesax-linear-flash" />
                   </div>
                 </div>
-                <div className="suggestion-card" onClick={() => handleSuggestionClick("Can you explain the significance of localism and empowerment in the ERP's vision for rural Europe?")}>
+                <div className="suggestion-card" onClick={() => handleSuggestionClick("What are the main concerns of EU citizens regarding the Common Agricultural Policy (CAP)?")}>
                   <p className="suggestion-question">
-                    <span className="lineup">Can you explain the significance of localism and </span>
-                    <span className="linedown">empowerment in the ERP's vision for rural Europe?</span>
+                    <span className="lineup">What are the main concerns of EU citizens regarding the </span>
+                    <span className="linedown">Common Agricultural Policy (CAP)?</span>
                   </p>
                   <div className="frame-2">
                     <div className="text-wrapper-5">Ask this</div>
                     <VuesaxLinearFlash5 className="vuesax-linear-flash" />
                   </div>
                 </div>
-                <div className="suggestion-card" onClick={() => handleSuggestionClick("Why does the ERP emphasize the need for flexible policies tailored to diverse rural areas?")}>
+                <div className="suggestion-card" onClick={() => handleSuggestionClick("How do European citizens view the EU’s policies on managing migration and asylum seekers?")}>
                   <p className="suggestion-question">
-                    <span className="lineup">Why does the ERP emphasize the need for </span>
-                    <span className="linedown">flexible policies tailored to diverse rural areas?</span>
+                    <span className="lineup">How do European citizens view the EU's policies on managing </span>
+                    <span className="linedown">migration and asylum seekers?</span>
                   </p>
                   <div className="frame-2">
                     <div className="text-wrapper-5">Ask this</div>

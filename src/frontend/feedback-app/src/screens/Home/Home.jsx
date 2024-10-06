@@ -13,7 +13,7 @@ import { IconButton, Popover, SwipeableDrawer } from "@mui/material";
 import NaviContainer from "../../components/NaviContainer/NaviContainer";
 import SidebarContainer from "../../components/SidebarContainer/SidebarContainer";
 import ListIcon from '@mui/icons-material/List';
-import { purple } from '@mui/material/colors';
+import { purple, blue } from '@mui/material/colors';
 
 export const Home = () => {
   const { 
@@ -34,6 +34,7 @@ export const Home = () => {
   } = useChat();
 
   const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedUserType, setSelectedUsertype] = useState(null);
   const [selectedChain, setSelectedChain] = useState('conversational');
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo');
   const [searchOptions, setSearchOptions] = useState({ searchType: 'similarity', search_kwargs: { k: 5 } });
@@ -42,7 +43,7 @@ export const Home = () => {
   const property = useDynamicProperty(properties);
 
   const handleSendWithTopic = () => {
-    handleSend(inputValue, selectedTopic, selectedChain, selectedModel, searchOptions); // Send query and selected parameters to backend
+    handleSend(inputValue, selectedTopic, selectedUserType, selectedChain, selectedModel, searchOptions); // Send query and selected parameters to backend
     setInputValue(""); // Clear input field
   };
 
@@ -81,7 +82,7 @@ export const Home = () => {
         <div className="navigation-bar">
           <div className="side-bar">
             <IconButton edge="start" color="inherit" onClick={handleDrawerToggle(true)}>
-              <ListIcon className="list-icon" sx={{ color: purple[500] }}/>
+              <ListIcon className="list-icon" sx={{ color: blue[500] }}/>
               <span className="tooltip-text">More Functions Are Here</span>
             </IconButton>
           </div>
@@ -160,8 +161,8 @@ export const Home = () => {
               <div className="boxes">
                 <div className="suggestion-card" onClick={() => handleSuggestionClick("What is the role of the European Rural Parliament (ERP) in shaping the vision for rural areas in Europe?")}>
                   <p className="suggestion-question">
-                    <span className="span">What is the role of the European Rural Parliament (ERP) </span>
-                    <span className="text-wrapper-4">in shaping the vision for rural areas in Europe?</span>
+                    <span className="lineup">What is the role of the European Rural Parliament (ERP) </span>
+                    <span className="linedown">in shaping the vision for rural areas in Europe?</span>
                   </p>
                   <div className="frame-2">
                     <div className="text-wrapper-5">Ask this</div>
@@ -170,8 +171,8 @@ export const Home = () => {
                 </div>
                 <div className="suggestion-card" onClick={() => handleSuggestionClick("Can you explain the significance of localism and empowerment in the ERP's vision for rural Europe?")}>
                   <p className="suggestion-question">
-                    <span className="text-wrapper-6">Can you explain the significance of localism and </span>
-                    <span className="text-wrapper-7">empowerment in the ERP's vision for rural Europe?</span>
+                    <span className="lineup">Can you explain the significance of localism and </span>
+                    <span className="linedown">empowerment in the ERP's vision for rural Europe?</span>
                   </p>
                   <div className="frame-2">
                     <div className="text-wrapper-5">Ask this</div>
@@ -180,8 +181,8 @@ export const Home = () => {
                 </div>
                 <div className="suggestion-card" onClick={() => handleSuggestionClick("Why does the ERP emphasize the need for flexible policies tailored to diverse rural areas?")}>
                   <p className="suggestion-question">
-                    <span className="text-wrapper-8">Why does the ERP emphasize the need for </span>
-                    <span className="text-wrapper-7">flexible policies tailored to diverse rural areas?</span>
+                    <span className="lineup">Why does the ERP emphasize the need for </span>
+                    <span className="linedown">flexible policies tailored to diverse rural areas?</span>
                   </p>
                   <div className="frame-2">
                     <div className="text-wrapper-5">Ask this</div>
@@ -211,6 +212,7 @@ export const Home = () => {
       >
         <SidebarContainer 
           setSelectedTopic={setSelectedTopic}
+          setSelectedUsertype={setSelectedUsertype}
           setSelectedChain={setSelectedChain}
           setSelectedModel={setSelectedModel}
           setSearchOptions={setSearchOptions}

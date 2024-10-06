@@ -62,7 +62,7 @@ const ChatContainer = ({
                     <div key={index} className={`message ${message.type}`}>
                     {message.type === "bot" && (
                         <div className="icon-wrapper">
-                            <RiRobot2Line color="white" size="20px" className="robot-icon" />
+                            <RiRobot2Line size="20px" className="robot-icon" />
                         </div>
                     )}
                     <div className="message-text">{message.text}</div>
@@ -71,7 +71,7 @@ const ChatContainer = ({
                 {loading && (
                     <div className="message bot">
                       <div className="icon-wrapper">
-                          <RiRobot2Line color="white" size="20px" className="robot-icon" />
+                          <RiRobot2Line size="20px" className="robot-icon" />
                       </div>
                       <div className="message-text">
                         <CircularProgress size={30} />

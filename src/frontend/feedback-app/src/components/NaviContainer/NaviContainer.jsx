@@ -11,7 +11,7 @@ const CustomMenuList = styled(MenuList)({
   margin: "0 auto",
   padding: "10px",
   flexDirection: "row",
-  backgroundColor: "var(--black-2)",
+  backgroundColor: "var(--color-gray-200)",
   color: "gray",
 });
 
@@ -20,8 +20,8 @@ const CustomMenuItem = styled(MenuItem)({
   padding: "20px",
   textDecoration: "none",
   "&:hover": {
-    backgroundColor: "var(--black)",
-    borderRadius: "5px"
+    backgroundColor: "var(--color-gray-300)",
+    borderRadius: "50px"
   }
 });
 

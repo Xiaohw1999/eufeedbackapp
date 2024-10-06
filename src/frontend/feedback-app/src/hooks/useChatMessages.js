@@ -9,7 +9,7 @@ const useChatMessages = () => {
   const [sources, setSources] = useState([]);
   const [scores, setScores] = useState([]);
 
-  const handleSend = async (inputValue, selectedTopic, selectedChain, selectedModel, searchOptions) => {
+  const handleSend = async (inputValue, selectedTopic, selectedUserType, selectedChain, selectedModel, searchOptions) => {
     if (inputValue.trim() !== "") {
       setStartedChat(true);
       const newMessage = { type: "user", text: inputValue.trim() };
@@ -23,6 +23,7 @@ const useChatMessages = () => {
         const res = await axios.post("https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/query", {
           query: inputValue.trim(),
           topic: selectedTopic, // topic
+          userType: selectedUserType, // user type
           chain_type: selectedChain, // chain
           model_name: selectedModel, // model
           search_type: searchOptions.searchType, // search type

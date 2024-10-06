@@ -21,7 +21,8 @@
 
 .chat .search-bar {
     align-items: center;
-    background-color: var(--black-2);
+    background-color: var(--color-white);
+    box-shadow: var(--box-shadow-lg);
     border-radius: 40px;
     display: flex;
     flex: 0 0 auto;
@@ -41,13 +42,11 @@
 }
   
 .chat .text-wrapper-2 {
-    color: var(--white-64);
-    font-family: var(--text-1-font-family);
-    font-size: var(--text-1-font-size);
-    font-style: var(--text-1-font-style);
-    font-weight: var(--text-1-font-weight);
-    letter-spacing: var(--text-1-letter-spacing);
-    line-height: var(--text-1-line-height);
+    color: var(--color-black);
+    font-family: var(--font-family-gpt);
+    font-size: var(--body-font-size);
+    font-weight: var(--body-font-weight);
+    line-height: var(--caption-line-height);
     position: relative;
     flex: 1;
     border: none;
@@ -170,7 +169,6 @@
 }
 
 .chat .right-content:hover {
-    transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5), 0 12px 24px rgba(0, 0, 0, 0.5);
 }
 
@@ -255,17 +253,17 @@
 }
 /* 轨道 */
 .chat .messages-container::-webkit-scrollbar-track {
-    background: var(--white-12);
+    background: var(--color-gray-100);
     border-radius: 5px;
 }
 /* 滑块 */
 .chat .messages-container::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--color-gray-200);
     border-radius: 5px;
 }
  /*悬停  */
 .chat .messages-container::-webkit-scrollbar-thumb:hover {
-    background: var(--white-48);
+    background: var(--color-gray-300);
 }
   
 .chat .message {
@@ -294,13 +292,12 @@
 
 .chat .message.user {
     max-width: 500px;
-    background-color: var(--white-12);
-    color: white;
+    background-color: var(--color-gray-200);
+    color: var(--color-black);
     align-self: flex-end;
-    font-family: var(--text-1-font-family);
-    font-size: var(--text-1-font-size);
-    font-style: var(--text-1-font-style);
-    font-weight: var(--text-1-font-weight);
+    font-family: var(--font-family-gpt);
+    font-size: var(--body-font-size);
+    font-weight: var(--caption-font-weight);
     letter-spacing: var(--text-1-letter-spacing);
     line-height: 1.2;
     text-align: justify;
@@ -308,14 +305,23 @@
   
 .chat .message.bot {
     background-color: none;
-    color: white;
+    color: var(--color-black);
     align-self: flex-start;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 15px;
-    font-style: normal;
-    font-weight: 300;
-    letter-spacing: 0.4px;
-    line-height: 1.7;
-    word-spacing: 0.9px;
+    font-family: var(--font-family-gpt);
+    font-size: var(--caption-font-size);
+    font-weight: var(--caption-font-weight);
+    letter-spacing: 0.1px;
+    line-height: 1.5;
+    word-spacing: 0px;
     max-width: 100%;
+    text-align: justify;
 }
+
+.robot-icon {
+    font-size: 48px;
+    color: #0880e2;
+    filter: drop-shadow(2px 2px 2px rgba(28, 88, 255, 0.5));
+    border: 1px ridge #087be6;
+    border-radius: 5px;
+    transition: transform 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }

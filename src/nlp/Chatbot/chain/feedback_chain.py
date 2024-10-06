@@ -46,7 +46,7 @@ app.add_middleware(
 client = httpx.Client(timeout=60)
 
 # Define parse_parameters function to create filter conditions
-def parse_parameters(topic=None):
+def parse_parameters(topic=None, userType=None):
     """
     Parse the input parameters and construct search conditions for MongoDB.
     Args:
@@ -54,10 +54,15 @@ def parse_parameters(topic=None):
     Returns:
     - dict: Constructed search conditions to be used in MongoDB Atlas VectorSearch.
     """
+    conditions = {}
+
     if topic:
-        return {'topic': topic}
-    else:
-        return {}
+        conditions['topic'] = topic
+
+    if userType and userType != 'ANY':
+        conditions['userType'] = userType
+
+    return conditions
 
 # Get MongoDB Atlas credentials from environment variables
 ATLAS_TOKEN = os.environ["ATLAS_TOKEN"]
@@ -92,7 +97,7 @@ embeddings = OpenAIEmbeddings(openai_api_key=api_key,
 # Initialize vector search with pre-filter
 vectors = MongoDBAtlasVectorSearch(
     collection=collection, 
-    index_name='new_data_index',
+    index_name='data_index',
     embedding=embeddings, 
     text_key='combined',
     embedding_key='embedding',
@@ -207,6 +212,7 @@ async def get_feedback(request: Request, background_tasks: BackgroundTasks):
         data = await request.json()
         query = data.get("query")
         topic = data.get("topic")
+        usertype = data.get("userType")
         chain_type = data.get("chain_type", "retrievalqa")
         model_name = data.get("model_name", "gpt-4o-mini")
         search_type = data.get("search_type", "similarity")
@@ -218,7 +224,7 @@ async def get_feedback(request: Request, background_tasks: BackgroundTasks):
         logger.info(f"Received query: {query}")
         
         # Generate pre-filter conditions using parse_parameters
-        pre_filter_conditions = parse_parameters(topic=topic)
+        pre_filter_conditions = parse_parameters(topic=topic, userType=usertype)
         search_kwargs['pre_filter'] = pre_filter_conditions
         logger.info(f"Search kwargs: {search_kwargs}")
         # Dynamically create the LLM based on model_name

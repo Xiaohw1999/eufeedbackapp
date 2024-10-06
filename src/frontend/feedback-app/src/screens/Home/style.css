@@ -1,6 +1,5 @@
 .home {
   align-items: center;
-  background-color: var(--black);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -40,13 +39,9 @@
 
 .home .tooltip-text {
   margin-left: 8px;
-  font-size: 14px;
-  color: var(--white-64);
-  font-family: var(--subtitle-1-font-family);
-  font-size: var(--subtitle-1-font-size);
-  font-style: var(--subtitle-1-font-style);
-  font-weight: var(--subtitle-1-font-weight);
-  letter-spacing: var(--subtitle-1-letter-spacing);
+  color: var(--color-black);
+  font-family: var(--font-family-sixth);
+  font-size: var(--body-font-size);
   line-height: var(--subtitle-1-line-height);
 }
 
@@ -87,15 +82,6 @@
   flex: 0 0 auto !important;
 }
 
-.home .design-component-instance-node {
-  background: linear-gradient(
-    180deg,
-    rgba(252.88, 252.88, 252.88, 0.23) 0%,
-    rgb(172.32, 170.64, 255) 50%,
-    rgb(45.69, 66.62, 255) 100%
-  ) !important;
-}
-
 .home .subtitle {
   align-items: center;
   display: flex;
@@ -106,13 +92,11 @@
 }
 
 .home .text-wrapper {
-  color: var(--white-64);
-  font-family: var(--subtitle-1-font-family);
-  font-size: var(--subtitle-1-font-size);
-  font-style: var(--subtitle-1-font-style);
-  font-weight: var(--subtitle-1-font-weight);
-  letter-spacing: var(--subtitle-1-letter-spacing);
-  line-height: var(--subtitle-1-line-height);
+  color: var(--color-black-light);
+  font-family: var(--font-family-sixth);
+  font-size: var(--subtitle-font-size);
+  font-weight: var(--subtitle-font-weight);
+  line-height: var(--subtitle-line-height);
   margin-top: -1px;
   position: relative;
   text-align: center;
@@ -129,6 +113,8 @@
   align-items: center;
   background-color: #ffffff;
   border-radius: 40px;
+  border: var(--color-black);
+  box-shadow: var(--box-shadow-lg);
   display: flex;
   flex: 0 0 auto;
   padding: 12px 10px;
@@ -156,9 +142,9 @@
   margin-right: 0px;
   flex-shrink: 0;
   border-radius: 50%;
-  border-color:rgb(194, 24, 237);
+  border-color:rgb(18, 108, 217);
   border-width: 2px;
-  border-style: solid;
+  border-style: ridge;
   width: 35px;
   height: 35px;
   display: flex;
@@ -168,28 +154,26 @@
 
 .home .robot-icon {
   font-size: 48px;
-  color: #000000;
-  filter: drop-shadow(2px 2px 2px rgba(221, 68, 68, 0.5));
-  border: 1px solid #000000;
+  color: #0880e2;
+  filter: drop-shadow(2px 2px 2px rgba(28, 88, 255, 0.5));
+  border: 1px ridge #087be6;
   border-radius: 5px;
   transition: transform 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .home .robot-icon:hover {
   transform: scale(1.3);
-  color: #b403f4;
-  border-color: #a403f4;
+  color: var(--color-primary-dark);
+  border-color: var(--color-primary);
   filter: drop-shadow(4px 4px 4px rgba(0, 0, 0, 0.7));
 }
 
 .home .text-wrapper-2 {
   color: var(--gray-1);
-  font-family: var(--text-1-font-family);
-  font-size: var(--text-1-font-size);
-  font-style: var(--text-1-font-style);
-  font-weight: var(--text-1-font-weight);
-  letter-spacing: var(--text-1-letter-spacing);
-  line-height: var(--text-1-line-height);
+  font-family: var(--font-family-sixth);
+  font-size: var(--body-font-size);
+  font-weight: var(--body-font-weight);
+  line-height: var(--caption-line-height);
   position: relative;
   width: 550px;
   border: none;
@@ -264,13 +248,11 @@
 }
 
 .home .text-wrapper-3 {
-  color: var(--white-32);
-  font-family: var(--subtitle-1-font-family);
-  font-size: var(--subtitle-1-font-size);
-  font-style: var(--subtitle-1-font-style);
-  font-weight: var(--subtitle-1-font-weight);
-  letter-spacing: var(--subtitle-1-letter-spacing);
-  line-height: var(--subtitle-1-line-height);
+  color: var(--gray-1);
+  font-family: var(--font-family-sixth);
+  font-size: var(--body-font-size);
+  font-weight: var(--body-font-weight);
+  line-height: var(--caption-line-height);
   margin-top: -1px;
   position: relative;
   white-space: nowrap;
@@ -288,7 +270,7 @@
 
 .home .suggestion-card {
   align-items: flex-start;
-  background-color: var(--white-6);
+  background-color: var(--color-gray-100) !important;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -302,44 +284,26 @@
 }
 
 .home .suggestion-card:hover {
-  background-color: rgba(136, 123, 244, 0.2);
+  background-color: var(--color-gray-200) !important;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
-}
-
-.home .suggestion-card:active {
-  background-color: #e0e0e0;
 }
 
 .home .suggestion-question {
   align-self: stretch;
   color: transparent;
-  font-family: var(--text-1-font-family);
-  font-size: var(--text-1-font-size);
-  font-style: var(--text-1-font-style);
-  font-weight: var(--text-1-font-weight);
-  letter-spacing: var(--text-1-letter-spacing);
-  line-height: var(--text-1-line-height);
+  font-family: var(--font-family-sixth);
+  font-size: var(--body-font-size);
+  font-weight: var(--body-font-weight);
+  line-height: var(--caption-line-height);
   position: relative;
 }
 
-.home .span {
-  color: #d9d9d9;
-  font-family: var(--text-1-font-family);
-  font-size: var(--text-1-font-size);
-  font-style: var(--text-1-font-style);
-  font-weight: var(--text-1-font-weight);
-  letter-spacing: var(--text-1-letter-spacing);
-  line-height: var(--text-1-line-height);
+.home .lineup {
+  color: #100e0e;
 }
 
-.home .text-wrapper-4 {
-  color: #d9d9d952;
-  font-family: var(--text-1-font-family);
-  font-size: var(--text-1-font-size);
-  font-style: var(--text-1-font-style);
-  font-weight: var(--text-1-font-weight);
-  letter-spacing: var(--text-1-letter-spacing);
-  line-height: var(--text-1-line-height);
+.home .linedown {
+  color: #918b8b;
 }
 
 .home .frame-2 {
@@ -348,16 +312,16 @@
   flex: 0 0 auto;
   gap: 4px;
   margin-bottom: -3px;
+  margin-top: 6px;
   position: relative;
+  background-color: transparent;
 }
 
 .home .text-wrapper-5 {
-  color: var(--white-64);
-  font-family: "Anonymous Pro", Helvetica;
+  color: var(--color-gray-800);
   font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: normal;
+  font-weight: 300;
+  letter-spacing: var(--spacing-xxs);
   margin-top: -1px;
   position: relative;
   text-decoration: underline;
@@ -369,36 +333,7 @@
   height: 14px !important;
   position: relative !important;
   width: 14px !important;
-}
-
-.home .text-wrapper-6 {
-  color: #ffffffdb;
-  font-family: var(--text-1-font-family);
-  font-size: var(--text-1-font-size);
-  font-style: var(--text-1-font-style);
-  font-weight: var(--text-1-font-weight);
-  letter-spacing: var(--text-1-letter-spacing);
-  line-height: var(--text-1-line-height);
-}
-
-.home .text-wrapper-7 {
-  color: #ffffff52;
-  font-family: var(--text-1-font-family);
-  font-size: var(--text-1-font-size);
-  font-style: var(--text-1-font-style);
-  font-weight: var(--text-1-font-weight);
-  letter-spacing: var(--text-1-letter-spacing);
-  line-height: var(--text-1-line-height);
-}
-
-.home .text-wrapper-8 {
-  color: #ffffff;
-  font-family: var(--text-1-font-family);
-  font-size: var(--text-1-font-size);
-  font-style: var(--text-1-font-style);
-  font-weight: var(--text-1-font-weight);
-  letter-spacing: var(--text-1-letter-spacing);
-  line-height: var(--text-1-line-height);
+  
 }
 
 .home .bottom-2 {

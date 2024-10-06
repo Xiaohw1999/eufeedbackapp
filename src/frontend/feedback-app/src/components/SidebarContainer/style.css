@@ -82,7 +82,7 @@
 
 .search-result-item a {
     font-size: 18px;
-    color: #007bff;
+    color: var(--color-primary-dark);
     text-decoration: none;
     transition: color 0.3s ease-in-out;
     font-weight: bold;
@@ -91,7 +91,7 @@
 }
 
 .search-result-item a:hover {
-    color: #0056b3;
+    color: #095ab0;
 }
 
 .search-result-item .summary-button {

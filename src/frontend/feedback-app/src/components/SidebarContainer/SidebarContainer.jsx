@@ -71,13 +71,27 @@ const topic_dict = {
   "YOUTH": "Youth"
 };
 
+const usertypeOptions = [
+  { value: 'ANY', label: 'Any' },
+  { value: 'ACADEMIC_RESEARCH_INSTITTUTION', label: 'Academic Research Institution' },
+  { value: 'BUSINESS_ASSOCIATION', label: 'Business Association' },
+  { value: 'COMPANY', label: 'Company' },
+  { value: 'CONSUMER_ORGANISATION', label: 'Consumer Organisation' },
+  { value: 'ENVIRONMENTAL_ORGANISATION', label: 'Environmental Organisation' },
+  { value: 'EU_CITIZEN', label: 'EU Citizen' },
+  { value: 'NGO', label: 'NGO' },
+  { value: 'NON_EU_CITIZEN', label: 'Non EU Citizen' },
+  { value: 'OTHER', label: 'Other' },
+  { value: 'PUBLIC_AUTHORITY', label: 'Public Authority' },
+  { value: 'TRADE_UNION', label: 'Trade Union' },
+];
+
 const chainOptions = [
   {value: 'conversational', label: 'Conversational Retrieval Chain'},
   {value: 'retrievalqa', label: 'QA Retrieval Chain'}
 ];
 
 const modelOptions = [
-  { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
   { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
   { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
   { value: 'gpt-4o', label: 'GPT-4o' },
@@ -90,9 +104,10 @@ const searchTypeOptions = [
 
 const fetchKOptions = [20, 30, 40];
 
-export default function SidebarContainer({ setSelectedTopic, setSelectedChain, setSelectedModel, setSearchOptions }) {
+export default function SidebarContainer({ setSelectedTopic, setSelectedUsertype, setSelectedChain, setSelectedModel, setSearchOptions }) {
   const theme = useTheme();
   const [first, setFirst] = useState('');
+  const [usertype, setUsertype] = useState('');
   const [chain, setChain] = useState('retrievalqa');
   const [model, setModel] = useState('gpt-4o-mini');
   const [searchType, setSearchType] = useState('similarity');
@@ -106,6 +121,10 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
 
   const handleFirstChange = (event) => {
     setFirst(event.target.value);
+  };
+
+  const handleUsertypeChange = (event) => {
+    setUsertype(event.target.value);
   };
 
   const handleChainChange = (event) => {
@@ -122,8 +141,11 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
 
   const handleSubmit = () => {
     const topic = first === 'Any' ? null : first;
+    const selectedUsertype = usertype === 'Any' ? null : usertype;
     setSelectedTopic(topic);
     console.log(topic);
+    setSelectedUsertype(selectedUsertype);
+    console.log(selectedUsertype);
     setSelectedChain(chain);
     setSelectedModel(model);
     setSearchOptions({
@@ -187,8 +209,26 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
                 ))}
               </Select>
             </FormControl>
-            {/* Chain */}
+            {/* userType*/}
             <FormControl className="form-control">
+              <InputLabel id="usertype-select-label">User Type</InputLabel>
+              <Select
+                labelId="usertype-select-label"
+                id="usertype-select"
+                value={usertype}
+                onChange={handleUsertypeChange}
+                input={<OutlinedInput label="User Type" />}
+                MenuProps={MenuProps}
+              >
+                {usertypeOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {/* Chain */}
+            {/* <FormControl className="form-control">
               <InputLabel id="chain-select-label">Retrieval Chain</InputLabel>
               <Select
                 labelId="chain-select-label"
@@ -204,7 +244,7 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedChain, s
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
+            </FormControl> */}
             {/* Model */}
             <FormControl className="form-control">
               <InputLabel id="model-select-label">Model</InputLabel>

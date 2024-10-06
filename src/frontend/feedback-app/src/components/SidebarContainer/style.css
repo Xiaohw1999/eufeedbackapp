@@ -7,7 +7,7 @@
 
 .title {
     font-size: 22px;
-    font-family: var(--text-1-font-family);
+    font-family: var(--font-family-gpt);
     color: #100f0f;
     width: 100%;
     text-align: center;
@@ -46,7 +46,7 @@
 }
 
 .search-result-item {
-    font-family: 'Times New Roman', Times, serif;
+    font-family: var(--font-family-gpt);
     padding: 20px;
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
@@ -68,7 +68,7 @@
 
 .search-result-item p {
     font-size: 18px;
-    color: #666666;
+    color: #2c2a2a;
     margin: 10px 0;
     text-align: justify;
     padding: 0 10px;

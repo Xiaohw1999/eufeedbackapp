@@ -124,15 +124,16 @@ export const Home = () => {
         ) : (
           <div className="contents">
             <div className="div">
-              <Title
+              {/* <Title
                 className="title-instance"
                 property1={property}
                 text="Citizen Feedback Enhancer"
                 visible={true}
-              />
+              /> */}
+              <p className="title">Citizen Feedback Enhancer</p>
               <div className="subtitle">
                 <p className="text-wrapper">
-                  Ask me freely about EU laws and initiatives, this chatbot will present citizens' opinions about them.
+                  Ask me freely about EU laws and initiatives, this chatbot will present publics' opinions about them.
                 </p>
               </div>
             </div>

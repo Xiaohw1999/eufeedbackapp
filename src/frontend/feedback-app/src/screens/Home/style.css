@@ -82,6 +82,19 @@
   flex: 0 0 auto !important;
 }
 
+.home .title {
+  color: var(--color-dark-blue);
+  font-family: var(--font-family-gpt);
+  font-size: var(--headline-font-size);
+  font-weight: var(--headline-font-weight);
+  line-height: var(--headline-line-height);
+  margin: 0px;
+  padding: 0px;
+  position: relative;
+  text-align: center;
+  width: 100%;
+}
+
 .home .subtitle {
   align-items: center;
   display: flex;

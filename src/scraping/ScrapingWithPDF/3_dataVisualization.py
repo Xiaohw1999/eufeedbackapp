@@ -9,7 +9,7 @@ from aiohttp.client_exceptions import ClientOSError
 database_metadata = 'metadata'
 metadata_collection_name = 'feedbackinfo_data'
 processeddata_collection_name = 'processed_feedback_data'
-progress_collection_name = 'processing_progress'
+progress_collection_name = 'processing_record'
 
 # Collection for keywords search
 keywords_collection_name = 'keywords_search_data'

@@ -51,3 +51,12 @@ jobs:
         run: |
           cd src/scraping/ScrapingWithPDF
           python 2_preprocessingMetadata.py
+
+      # Step 3: Run the third script (visualization)
+      - name: Run initiative info script
+        env:
+          ATLAS_USER: ${{ secrets.ATLAS_USER }}
+          ATLAS_TOKEN: ${{ secrets.ATLAS_TOKEN }}
+        run: |
+          cd src/scraping/ScrapingWithPDF
+          python 3_dataVisualization.py

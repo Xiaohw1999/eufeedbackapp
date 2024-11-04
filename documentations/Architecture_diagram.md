@@ -9,13 +9,22 @@ The basic architecture design of the system:
 
 ![img.png](Dataupdatepipeline.png)
 
-Pipeline:
-.github/workflows/scraping-job.yml
-
 Pipeline description:
-Folder and files: .src/scraping/ScrapingWithPDF/
-### utilsScraping.py
-Functions for scraping data from websites and storing it into MongoDB Atlas.
 
-### utilsPreprocessing.py
-Functions for preprocessing metadata from MongoDB Atlas and restoring it.
+Pipeline: .github/workflows/scraping-job.yml
+
+Folder: .src/scraping/ScrapingWithPDF/
+
+Files: 
+(1) functions: 
+
+utilsScraping.py: Functions for scraping data from websites and storing it into MongoDB Atlas.
+
+utilsPreprocessing.py: Functions for preprocessing metadata from MongoDB Atlas and restoring it.
+
+(2) stages:
+
+
+
+
+

@@ -4,7 +4,9 @@ import os
 import dotenv
 import pandas as pd
 from pymongo import MongoClient
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.prompts import PromptTemplate, PipelinePromptTemplate
 from langchain_core.prompts import ChatPromptTemplate
@@ -12,15 +14,18 @@ from langchain.chains import RetrievalQA, ConversationalRetrievalChain, LLMChain
 from langchain_openai import ChatOpenAI
 from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch # test
 from langchain.memory import ConversationBufferMemory 
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Query, BackgroundTasks
+from langchain.callbacks.base import AsyncCallbackHandler
+from langchain.callbacks.streaming_aiter import AsyncIteratorCallbackHandler
+from langchain.schema import HumanMessage
 from typing import List
 import logging
 import sys
 import fitz
+import json
 import requests
 import tempfile
 import httpx
+import asyncio
 
 # utf-8
 sys.stdout.reconfigure(encoding='utf-8')
@@ -105,26 +110,55 @@ vectors = MongoDBAtlasVectorSearch(
 )
 
 prompt_template = """
-    You are a helpful assistant responsible for providing detailed analysis and summaries of citizen feedback on EU laws and initiatives.
+    You are a helpful assistant responsible for providing detailed analysis and summaries of public opinion on EU laws and initiatives.
 
     ### Task:
-    You have been given a question: {question}. The person asking this question could be a policymaker, researcher, or anyone interested in public feedback. They need you to provide in-depth analysis and summaries based on citizen feedback to help them understand public opinions and concerns.
-
-    ### Context:
-    The following contexts {context} have been provided to you, retrieved from a database of citizen feedback. Only use the information from the contexts provided to answer the question, and avoid speculation or using unprovided information. Due to the retrieval process, some contexts may be less relevant to the question; summarize these cautiously. If none of the contexts provide relevant information, politely express that you do not have enough information to answer the question.
+    Your goal is to provide a structured and actionable analysis of public opinion. The analysis should be tailored to the questions asked, while maintaining clarity and relevance.
+    
+    ### Input:
+    You are provided with the following:
+    - **Question**: {question}. The question may come from policymakers, researchers, or citizens.
+    - **Feedback Contexts**: {context}, which are retrieved from a database of citizen feedback.
 
     ### Context Structure:
     Each context provided to you includes the following information:
-    - The type of user or organization: from context['UserType'] and context['Organization']
-    - The country of the feedback provider: from context['Country']
-    - A detailed and concrete summary of the feedback: from context['Content'] and context['Title']
+    - important **User Type** and **Organization**: The type of user or organization which are from context['UserType'] and context['Organization']
+    - **Country**: The country of the feedback provider which can be ssen in context['Country']
+    - **Real public opinion Content**: A real EU citizen feedback that can be seen in context['Content'] and context['Title']
 
-    ### Requirements:
-    Please summarize and analyze the content provided, paying attention to the following points:
-    1. **Paragraph-based Summaries**: Avoid summarizing in a list format. Use paragraphs to separate different points when necessary.
-    2. **Focus on Relevant Content**: Prioritize information that is directly related to the question. Briefly mention or skip content that is less relevant.
-    3. **Polite Expression**: If you cannot provide a relevant answer, politely state "I'm not sure" or "Based on the provided context, I cannot answer this question."
-    """
+    ### Requirements (Most of cases):
+    1. **Analysis Structure**:
+        - **Overview**:
+            - Provide a paragraph summary highlighting the key themes or sentiments across all feedback.
+        - **Categorized Insights**:
+            - Group feedback by `User Type` and briefly summarize key points for each group.
+            - Highlight unique perspectives, priorities, and concerns from each category.
+        - **Actionable Insights**:
+            - Offer 2-3 specific, evidence-based recommendations or highlight conflicts that require resolution.
+        - Special Cases: only meet below conditions:
+            important: The following two situations are very special. Even if you are provided with context, please do not answer according to the usual structure.
+            - If the context is not relevant to the question or if it is not possible to answer the question at all, please use it with caution and explain its limitations.
+            - If the 'Question' does not align with analyzing information or public opinion on EU laws and initiatives: For example: 'What is the weather like today?'
+                - Clearly explain the misalignment between the question and the program's capabilities.
+                - For example:
+                    "The provided question falls outside the scope of this program, which is designed to analyze and summarize public opinion on EU laws and initiatives. Although some context has been retrieved, its relevance to the question may be limited."
+            
+                            
+    2. **Clarity**:
+        - Important: Only use the information from the contexts provided to answer the question, and avoid speculation or using unprovided information.
+        - Use concise paragraphs or bullet points for readability.
+        - Avoid unnecessary jargon or technical terms unless contextually relevant.
+        
+    3. **Politeness**:
+        - Maintain a friendly and professional tone.
+            
+    4. **Customizations Based on Input**:
+        - **Focus**: Tailor the depth of analysis based on the nature of the question (e.g., strategic, technical, or general). Prioritize the most relevant details.
+        - **Language**: Generate the response in the same language as the question.
+        - **Format Preferences**: Adjust the response format based on user's question requirements.
+            - Example: Provide a paragraph summary, bullet points, or categorized insights as requested.
+        - Dynamically adapt the response format to match explicit or implicit user preferences.
+"""    
 QA_CHAIN_PROMPT = ChatPromptTemplate.from_template(prompt_template)
 
 # memory = ConversationBufferMemory( 
@@ -158,53 +192,54 @@ def create_retrieval_qa_chain(llm, retriever):
 
 
 ''' Score Function Design, design a evaluation method to evaluate the quality and relevance of query, answer and source documents'''
-# define templates for evaluation
-scoring_prompt_template = """
-Please evaluate the following question, answer, and source data based on three dimensions. For each dimension, provide a score from 2 to 10 according to the provided criteria.
 
-### Dimension 1: Relevance between the question and the answer
-- **2 points**: The answer has no relevance to the question.
-- **4 points**: The answer has minimal relevance but is mostly unrelated to the question.
-- **6 points**: The answer is moderately relevant to the question but has some discrepancies.
-- **8 points**: The answer is mostly relevant to the question with only minor omissions or irrelevant information.
-- **10 points**: The answer is fully relevant and directly addresses the user's question.
+# # define templates for evaluation
+# scoring_prompt_template = """
+# Please evaluate the following question, answer, and source data based on three dimensions. For each dimension, provide a score from 2 to 10 according to the provided criteria.
 
-### Dimension 2: Relevance between the question and the source data
-- **2 points**: The source data has no relevance to the question.
-- **4 points**: The source data has minimal relevance but is mostly unrelated to the question.
-- **6 points**: The source data is moderately relevant but contains some irrelevant information.
-- **8 points**: The source data is mostly relevant to the question with only minor irrelevant information.
-- **10 points**: The source data is fully relevant and directly addresses the user's question.
+# ### Dimension 1: Relevance between the question and the answer
+# - **2 points**: The answer has no relevance to the question.
+# - **4 points**: The answer has minimal relevance but is mostly unrelated to the question.
+# - **6 points**: The answer is moderately relevant to the question but has some discrepancies.
+# - **8 points**: The answer is mostly relevant to the question with only minor omissions or irrelevant information.
+# - **10 points**: The answer is fully relevant and directly addresses the user's question.
 
-### Dimension 3: Alignment between the answer and the source data
-- **2 points**: The answer has no alignment with the source data.
-- **4 points**: The answer has minimal alignment with the source data but is mostly unrelated.
-- **6 points**: The answer is moderately aligned with the source data but contains inaccuracies or inconsistencies.
-- **8 points**: The answer is mostly aligned with the source data but has minor omissions or slight inaccuracies.
-- **10 points**: The answer is fully aligned and accurate based on the source data.
+# ### Dimension 2: Relevance between the question and the source data
+# - **2 points**: The source data has no relevance to the question.
+# - **4 points**: The source data has minimal relevance but is mostly unrelated to the question.
+# - **6 points**: The source data is moderately relevant but contains some irrelevant information.
+# - **8 points**: The source data is mostly relevant to the question with only minor irrelevant information.
+# - **10 points**: The source data is fully relevant and directly addresses the user's question.
 
-### Task:
-Evaluate the following:
+# ### Dimension 3: Alignment between the answer and the source data
+# - **2 points**: The answer has no alignment with the source data.
+# - **4 points**: The answer has minimal alignment with the source data but is mostly unrelated.
+# - **6 points**: The answer is moderately aligned with the source data but contains inaccuracies or inconsistencies.
+# - **8 points**: The answer is mostly aligned with the source data but has minor omissions or slight inaccuracies.
+# - **10 points**: The answer is fully aligned and accurate based on the source data.
 
-**User question**: {question}
-**Generated answer**: {answer}
-**Source data**: {source}
+# ### Task:
+# Evaluate the following:
 
-Please provide only the score for each dimension as a number between 2 and 10.
-Example: 0, 0, 0
-"""
+# **User question**: {question}
+# **Generated answer**: {answer}
+# **Source data**: {source}
 
-scoring_llm = ChatOpenAI(temperature=0.0, model_name="gpt-4o-mini", openai_api_key=api_key)
-scoring_prompt = PromptTemplate(
-            input_variables=["question", "answer", "source"],
-            template=scoring_prompt_template
-        )
-combined_scoring_chain = LLMChain(llm=scoring_llm, prompt=scoring_prompt)
+# Please provide only the score for each dimension as a number between 2 and 10.
+# Example: 0, 0, 0
+# """
 
-# support function for extracting scores from the response
-def extract_scores(response_text):
-    scores = re.findall(r'\b\d+\b', response_text)
-    return [int(score) for score in scores] if scores else None
+# scoring_llm = ChatOpenAI(temperature=0.0, model_name="gpt-4o-mini", openai_api_key=api_key)
+# scoring_prompt = PromptTemplate(
+#             input_variables=["question", "answer", "source"],
+#             template=scoring_prompt_template
+#         )
+# combined_scoring_chain = LLMChain(llm=scoring_llm, prompt=scoring_prompt)
+
+# # support function for extracting scores from the response
+# def extract_scores(response_text):
+#     scores = re.findall(r'\b\d+\b', response_text)
+#     return [int(score) for score in scores] if scores else None
 
 @app.post("/query")
 async def get_feedback(request: Request, background_tasks: BackgroundTasks):
@@ -227,8 +262,9 @@ async def get_feedback(request: Request, background_tasks: BackgroundTasks):
         pre_filter_conditions = parse_parameters(topic=topic, userType=usertype)
         search_kwargs['pre_filter'] = pre_filter_conditions
         logger.info(f"Search kwargs: {search_kwargs}")
+        
         # Dynamically create the LLM based on model_name
-        llm = ChatOpenAI(temperature=0.5, model_name=model_name, openai_api_key=api_key)
+        llm = ChatOpenAI(temperature=0.5, model_name=model_name, openai_api_key=api_key, streaming=True)
         
         # creat retriever and use combined search_kwargs
         retriever = vectors.as_retriever(
@@ -236,22 +272,69 @@ async def get_feedback(request: Request, background_tasks: BackgroundTasks):
             search_kwargs=search_kwargs
         )
         
-        # Select the appropriate chain based on the request
+        # # Select the appropriate chain based on the request
+        # if chain_type == "conversational":
+        #     chain = create_conversational_chain(llm, retriever)
+        #     response = chain.invoke({"question": query, "chat_history": []})
+        #     answer = response.get('answer', 'No answer found')
+        # elif chain_type == "retrievalqa":
+        #     chain = create_retrieval_qa_chain(llm, retriever)
+        #     response = chain.invoke({"query": query})
+        #     answer = response.get('result', 'No answer found')
+        
+        # # Log the raw response for debugging  
+        # logger.info(f"Response: {response}")
+
+        # source_documents = response.get('source_documents', [])
+        # sources = [{"text": doc.page_content, "metadata": doc.metadata} for doc in source_documents]
+        
+        ''' Apply streaming output'''
+        # Initialize the appropriate chain with streaming callbacks
         if chain_type == "conversational":
             chain = create_conversational_chain(llm, retriever)
-            response = chain.invoke({"question": query, "chat_history": []})
-            answer = response.get('answer', 'No answer found')
+            input_dict = {"question": query, "chat_history": []}
         elif chain_type == "retrievalqa":
             chain = create_retrieval_qa_chain(llm, retriever)
-            response = chain.invoke({"query": query})
-            answer = response.get('result', 'No answer found')
+            input_dict = {"query": query}
+        else:
+            raise HTTPException(status_code=400, detail="Invalid chain type.")
         
-        # Log the raw response for debugging  
-        logger.info(f"Response: {response}")
+        # Create an async iterator callback handler
+        callback = AsyncIteratorCallbackHandler()
+        # Start the chain execution in the background
+        task = asyncio.create_task(chain.acall(inputs=input_dict, callbacks=[callback]))
+        # Create an async generator to yield tokens as they are generated
+        async def stream_response():
+            try:
+                # Stream tokens as they are generated
+                async for token in callback.aiter():
+                    if await request.is_disconnected():
+                        logger.info("Client disconnected, stopping response.")
+                        task.cancel()
+                        break  # Stop streaming if client disconnects
+                    yield token
+                # After the chain is done, get the sources
+                response = await task
+                source_documents = response.get('source_documents', [])
+                sources = [{"text": doc.page_content} for doc in source_documents]
+                # Send a separator and then the sources
+                # Send a special separator to indicate the end of the answer
+                yield "\n<END_OF_ANSWER>\n"
 
-        source_documents = response.get('source_documents', [])
-        sources = [{"text": doc.page_content} for doc in source_documents]
+                # Send the sources as JSON string
+                sources_json = json.dumps(sources, ensure_ascii=False)
+                logger.info(f"Sources JSON: {sources_json}")
+                yield sources_json
 
+            except asyncio.CancelledError:
+                logger.info("Task cancelled due to client disconnect.")
+                task.cancel()
+            except Exception as e:
+                logger.error(f"Error during streaming: {e}")
+                
+        return StreamingResponse(stream_response(), media_type="text/plain")
+
+        '''
         # implement scoreing chain
         source_text = "; ".join([doc["text"] for doc in sources])
         scoring_response = combined_scoring_chain.invoke({
@@ -268,16 +351,18 @@ async def get_feedback(request: Request, background_tasks: BackgroundTasks):
         
         # Log the scores
         logging.info(f"Scores: QA - {score_qa}, QS - {score_qs}, AS - {score_as}")
+        '''
+
         
-        return {
-            "response": answer,
-            "sources": sources,
-            "scores": {
-                "question_answer_relevance": score_qa,
-                "question_source_relevance": score_qs,
-                "answer_source_alignment": score_as
-            }
-        }
+        # return {
+        #     "response": answer,
+        #     "sources": sources,
+        #     # "scores": {
+        #     #     "question_answer_relevance": score_qa,
+        #     #     "question_source_relevance": score_qs,
+        #     #     "answer_source_alignment": score_as
+        #     # }
+        # }
 
     except Exception as e:
         logger.error(f"Error processing request: {e}", exc_info=True)

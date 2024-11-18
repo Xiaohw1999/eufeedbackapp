@@ -5,12 +5,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import "./style.css";
 
 const parseSourceText = (text) => {
-  const titleMatch = text.match(/Title:\s*([^;]*);/);
-  const idMatch = text.match(/ID:\s*([^;]*);/);
-  const contentMatch = text.match(/Content:\s*([^;]*);/);
-  const userTypeMatch = text.match(/UserType:\s*([^;]*);/);
-  const countryMatch = text.match(/Country:\s*([^;]*);/);
-  const organizationMatch = text.match(/Organization:\s*([^;]*);/);
+  const titleMatch = text.match(/Title:\s*(.*?);/);
+  const idMatch = text.match(/ID:\s*(.*?);/);
+  const contentMatch = text.match(/Content:\s*(.*?);/);
+  const userTypeMatch = text.match(/UserType:\s*(.*?);/);
+  const countryMatch = text.match(/Country:\s*(.*?);/);
+  const organizationMatch = text.match(/Organization:\s*(.*?);?/);
 
   return {
     title: titleMatch ? titleMatch[1].trim() : "N/A",

@@ -51,7 +51,18 @@ export const Home = () => {
     if (event) event.preventDefault();
     handleSendWithTopic(inputValue);
     setInputValue("");
-};
+  };
+  
+  // enter key to send query, shift enter to add new line
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!loading && inputValue) {
+        handleSend(inputValue, selectedTopic, selectedUserType, selectedChain, selectedModel, searchOptions);
+        setInputValue("");
+      }
+    }
+  };
 
   // menu
   const [anchorEl, setAnchorEl] = useState(null);
@@ -83,7 +94,6 @@ export const Home = () => {
           <div className="side-bar">
             <IconButton edge="start" color="inherit" onClick={handleDrawerToggle(true)}>
               <ListIcon className="list-icon" sx={{ color: blue[500] }}/>
-              <span className="tooltip-text">More Functions Are Here</span>
             </IconButton>
           </div>
           <div className="menu">
@@ -145,6 +155,7 @@ export const Home = () => {
                   ref={textareaRef}
                   value={inputValue}
                   onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
                   className="text-wrapper-2"
                   placeholder="Tell me something about..."
                   rows={1}

@@ -152,9 +152,9 @@ prompt_template = """
     3. **Politeness**:
         - Maintain a friendly and professional tone.
             
-    4. **Customizations Based on Input**:
+    4. **Customizations Based on Input Question**:
+        Important: - **Language**: Generate the response in the same language as the **Question**.
         - **Focus**: Tailor the depth of analysis based on the nature of the question (e.g., strategic, technical, or general). Prioritize the most relevant details.
-        - **Language**: Generate the response in the same language as the question.
         - **Format Preferences**: Adjust the response format based on user's question requirements.
             - Example: Provide a paragraph summary, bullet points, or categorized insights as requested.
         - Dynamically adapt the response format to match explicit or implicit user preferences.

@@ -13,24 +13,36 @@ import { IconButton, Popover, SwipeableDrawer } from "@mui/material";
 import NaviContainer from "../../components/NaviContainer/NaviContainer";
 import SidebarContainer from "../../components/SidebarContainer/SidebarContainer";
 import ListIcon from '@mui/icons-material/List';
+import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
+import Tooltip from "@mui/material/Tooltip";
 import { purple, blue } from '@mui/material/colors';
 
 export const Home = () => {
   const { 
-    inputValue, 
-    setInputValue, 
-    isListening, 
-    handleVoiceInput, 
-    messages, 
-    startedChat, 
-    textareaRef, 
-    handleInputChange, 
+    inputValue,
+    setInputValue,
+    isListening,
+    handleVoiceInput,
+    messages,
+    setMessages,
+    startedChat,
+    setStartedChat,
+    textareaRef,
+    handleInputChange,
     handleSend,
     handleSuggestionClick,
     loading,
+    setLoading,
     error,
+    setError,
     sources,
-    scores
+    setSources,
+    scores,
+    terminateOutput,
+    isTerminated,
+    setIsTerminated,
+    abortController,
+    setAbortController,
   } = useChat();
 
   const [selectedTopic, setSelectedTopic] = useState(null);
@@ -64,6 +76,23 @@ export const Home = () => {
     }
   };
 
+  // start new chat
+  const handleNewChat = () => {
+    // setStartedChat(false);
+    // setInputValue("");
+    // setMessages([]);
+    // // setSources([]);
+    // // setError(null);
+    // setLoading(false);
+    // setIsTerminated(true);
+
+    // if (abortController) {
+    //   abortController.abort();
+    // }
+    // setAbortController(null);
+    window.location.reload();
+  };
+
   // menu
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuClick = (event) => {
@@ -92,9 +121,16 @@ export const Home = () => {
       <div className="top">
         <div className="navigation-bar">
           <div className="side-bar">
-            <IconButton edge="start" color="inherit" onClick={handleDrawerToggle(true)}>
-              <ListIcon className="list-icon" sx={{ color: blue[500] }}/>
-            </IconButton>
+            <Tooltip title='More Options Here' placement="bottom">
+              <IconButton edge="start" color="inherit" onClick={handleDrawerToggle(true)}>
+                <ListIcon className="list-icon" sx={{ color: blue[500] }}/>
+              </IconButton>
+            </Tooltip>
+            <Tooltip title = 'New Chat' placement="bottom">
+              <IconButton edge="end" color="inherit" onClick={handleNewChat}>
+                <QuestionAnswerOutlinedIcon className="newchat-icon" sx={{ color: blue[500] }}/>
+              </IconButton>
+            </Tooltip>
           </div>
           <div className="menu">
             {/* <IconButton edge="start" color="inherit" onClick={handleMenuClick}>

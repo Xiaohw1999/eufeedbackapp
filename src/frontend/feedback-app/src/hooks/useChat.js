@@ -5,7 +5,25 @@ import useChatMessages from "./useChatMessages";
 const useChat = () => {
   const { inputValue, setInputValue, textareaRef, handleInputChange } = useInput("");
   const { isListening, handleVoiceInput } = useVoiceRecognition(setInputValue);
-  const { messages, startedChat, handleSend, handleSuggestionClick, loading, error, sources, scores, terminateOutput } = useChatMessages();
+  const { messages, 
+    setMessages, 
+    startedChat, 
+    setStartedChat, 
+    handleSend, 
+    handleSuggestionClick, 
+    loading, 
+    setLoading,
+    error, 
+    setError, 
+    sources, 
+    setSources, 
+    scores, 
+    terminateOutput,
+    isTerminated,
+    setIsTerminated,
+    abortController,
+    setAbortController,
+  } = useChatMessages();
 
   const sendMessage = (inputValue, selectedTopic, selectedUserType, selectedChain, selectedModel, searchOptions) => {
     handleSend(inputValue, selectedTopic, selectedUserType, selectedChain, selectedModel, searchOptions);
@@ -18,16 +36,25 @@ const useChat = () => {
     isListening,
     handleVoiceInput,
     messages,
+    setMessages,
     startedChat,
+    setStartedChat,
     textareaRef,
     handleInputChange,
     handleSend: sendMessage,
     handleSuggestionClick,
     loading,
+    setLoading,
     error,
+    setError,
     sources,
+    setSources,
     scores,
-    terminateOutput
+    terminateOutput,
+    isTerminated,
+    setIsTerminated,
+    abortController,
+    setAbortController,
   };
 };
 

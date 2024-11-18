@@ -41,6 +41,7 @@ const SourceContainer = ({ sources, loading }) => {
       {loading ? (
         <div className="loading-container">
           <CircularProgress size={30} />
+          <p>The Relevant Sources will be Displayed Here ...</p>
         </div>
       ) : (
         <>

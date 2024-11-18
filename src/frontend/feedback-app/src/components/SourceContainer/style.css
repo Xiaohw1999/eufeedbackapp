@@ -107,4 +107,9 @@
     justify-content: center;
     align-items: center;
     height: 100%;
+    flex-direction: row;
+    gap: 10px;
+    color: rgb(0, 95, 204);
+    font-weight: bold;
+    
 }

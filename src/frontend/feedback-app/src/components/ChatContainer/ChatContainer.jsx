@@ -1,6 +1,6 @@
 // build interface for chatting 
 
-import React from "react";
+import React, {useEffect, useRef} from "react";
 import { VuesaxBulkMenu1 } from "../../icons/VuesaxBulkMenu1";
 import { VuesaxTwotoneMicrophone1 } from "../../icons/VuesaxTwotoneMicrophone1";
 import { OutlineArrowCircleUp } from "../../icons/OutlineArrowCircleUp";
@@ -48,6 +48,8 @@ const ChatContainer = ({
   scores,
   terminateOutput
 }) => {
+  // control scroll
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!loading) {
@@ -106,6 +108,7 @@ const ChatContainer = ({
         </div>
         <div className="chat-content">
           <div className="messages-container">
+            <div className="empty-content"></div>
             <div className="messages-content">
                 {messages.map((message, index) => (
                     <div key={index} className={`message ${message.type}`}>
@@ -116,9 +119,7 @@ const ChatContainer = ({
                     )}
                     <div className="message-text">
                       {/* {message.text} */}
-                    <ReactMarkdown>
-                      {message.text}
-                    </ReactMarkdown>
+                      <ReactMarkdown>{message.text}</ReactMarkdown>
                     </div>
                   </div>
                 ))}
@@ -127,8 +128,9 @@ const ChatContainer = ({
                       <div className="icon-wrapper">
                           <RiRobot2Line size="20px" className="robot-icon" />
                       </div>
-                      <div className="message-text">
+                      <div className="loading-text">
                         <CircularProgress size={30} />
+                        <p>Searching for Relevant Public Opinions ...</p>
                       </div>
                     </div>
                 )}

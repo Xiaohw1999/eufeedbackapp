@@ -122,6 +122,9 @@ const useChatMessages = () => {
       }
       await new Promise((resolve) => setTimeout(resolve, 2)); // Adjust speed as needed
       setMessages((prevMessages) => {
+        if (isTerminated) {
+          return prevMessages; // If is ended, do not update the message
+        }
         const updatedMessages = [...prevMessages];
         const lastMessageIndex = updatedMessages.length - 1;
         const lastMessage = updatedMessages[lastMessageIndex];
@@ -196,7 +199,6 @@ const useChatMessages = () => {
         let answerText = "";
         let sourcesBuffer = ""; // Initialize buffer for sources
         const endMarker = "<END_OF_ANSWER>";
-
         while (!done) {
           if (isTerminated) {
             console.log("Output terminated by user.");
@@ -206,6 +208,7 @@ const useChatMessages = () => {
 
           const { value, done: doneReading } = await reader.read();
           done = doneReading;
+          setLoading(false);
 
           if (value) {
             let chunk = decoder.decode(value, { stream: true });
@@ -267,7 +270,7 @@ const useChatMessages = () => {
           setError("Error fetching data. Please try again.");
         }
       } finally {
-        setLoading(false);
+        // setLoading(false);
         setAbortController(null);
       }
     }
@@ -331,6 +334,7 @@ const useChatMessages = () => {
 
           const { value, done: doneReading } = await reader.read();
           done = doneReading;
+          setLoading(false);
 
           if (value) {
             let chunk = decoder.decode(value, { stream: true });
@@ -392,7 +396,7 @@ const useChatMessages = () => {
           setError("Error fetching data. Please try again.");
         }
       } finally {
-        setLoading(false);
+        // setLoading(false);
         setAbortController(null);
       }
     }
@@ -400,14 +404,23 @@ const useChatMessages = () => {
 
   return {
     messages,
+    setMessages,
     startedChat,
+    setStartedChat,
     handleSend,
     handleSuggestionClick,
     loading,
+    setLoading,
     error,
+    setError,
     sources,
+    setSources,
     scores,
     terminateOutput,
+    isTerminated,
+    setIsTerminated,
+    abortController,
+    setAbortController,
   };
 };
 

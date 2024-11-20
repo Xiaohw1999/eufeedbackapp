@@ -19,8 +19,6 @@ const useChat = () => {
     setSources, 
     scores, 
     terminateOutput,
-    isTerminated,
-    setIsTerminated,
     abortController,
     setAbortController,
   } = useChatMessages();
@@ -51,8 +49,6 @@ const useChat = () => {
     setSources,
     scores,
     terminateOutput,
-    isTerminated,
-    setIsTerminated,
     abortController,
     setAbortController,
   };

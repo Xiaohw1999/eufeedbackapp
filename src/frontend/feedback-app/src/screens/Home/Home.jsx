@@ -24,32 +24,22 @@ export const Home = () => {
     isListening,
     handleVoiceInput,
     messages,
-    setMessages,
     startedChat,
-    setStartedChat,
     textareaRef,
     handleInputChange,
     handleSend,
     handleSuggestionClick,
     loading,
-    setLoading,
     error,
-    setError,
     sources,
-    setSources,
     scores,
-    terminateOutput,
-    isTerminated,
-    setIsTerminated,
-    abortController,
-    setAbortController,
   } = useChat();
 
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [selectedUserType, setSelectedUsertype] = useState(null);
-  const [selectedChain, setSelectedChain] = useState('conversational');
-  const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo');
-  const [searchOptions, setSearchOptions] = useState({ searchType: 'similarity', search_kwargs: { k: 5 } });
+  const [selectedChain, setSelectedChain] = useState('retrievalqa');
+  const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
+  const [searchOptions, setSearchOptions] = useState({ searchType: 'similarity', search_kwargs: { k: 15 } });
 
   const properties = ["default", "variant-2", "variant-3", "variant-4"];
   const property = useDynamicProperty(properties);

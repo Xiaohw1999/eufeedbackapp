@@ -1,3 +1,89 @@
+// import { useState } from "react";
+// import axios from "axios";
+
+// const useChatMessages = () => {
+//   const [messages, setMessages] = useState([]);
+//   const [startedChat, setStartedChat] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+//   const [sources, setSources] = useState([]);
+//   const [scores, setScores] = useState([]);
+
+//   const handleSend = async (inputValue, selectedTopic, selectedUserType, selectedChain, selectedModel, searchOptions) => {
+//     if (inputValue.trim() !== "") {
+//       setStartedChat(true);
+//       const newMessage = { type: "user", text: inputValue.trim() };
+//       setMessages(prevMessages => [...prevMessages, newMessage]);
+
+//       setLoading(true);
+//       setError(null);
+
+//       try {
+//         // send inputValue to backend
+//         const res = await axios.post("https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/query", {
+//           query: inputValue.trim(),
+//           topic: selectedTopic, // topic
+//           userType: selectedUserType, // user type
+//           chain_type: selectedChain, // chain
+//           model_name: selectedModel, // model
+//           search_type: searchOptions.searchType, // search type
+//           search_kwargs: searchOptions.search_kwargs, // search parameters
+//         });
+
+//         const responseMessage = { type: "bot", text: res.data.response };
+//         setMessages(prevMessages => [...prevMessages, responseMessage]);
+//         setSources(res.data.sources || []);
+//         setScores(res.data.scores || null);
+
+//       } catch (error) {
+//         console.error("Error fetching data:", error);
+//         setError("Error fetching data. Please try again.");
+//       } finally {
+//         setLoading(false);
+//       }
+//     }
+//   };
+
+//   const handleSuggestionClick = async (question) => {
+//     setStartedChat(true);
+//     const newMessage = { type: "user", text: question };
+//     setMessages(prevMessages => [...prevMessages, newMessage]);
+
+//     setLoading(true);
+//     setError(null);
+
+//     try {
+//       const res = await axios.post("https://eej22ko8bc.execute-api.eu-north-1.amazonaws.com/newstage/query", {
+//         query: question,
+//       });
+
+//       const responseMessage = { type: "bot", text: res.data.response };
+//       setMessages(prevMessages => [...prevMessages, responseMessage]);
+//       setSources(res.data.sources || []);
+//       setScores(res.data.scores || null);
+//     } catch (error) {
+//       console.error("Error fetching data:", error);
+//       setError("Error fetching data. Please try again.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return {
+//     messages,
+//     startedChat,
+//     handleSend,
+//     handleSuggestionClick,
+//     loading,
+//     error,
+//     sources,
+//     scores,
+//   };
+// };
+
+// export default useChatMessages;
+
+
 import { useState, useRef } from "react";
 
 const useChatMessages = () => {
@@ -7,16 +93,15 @@ const useChatMessages = () => {
   const [error, setError] = useState(null);
   const [sources, setSources] = useState([]);
   const [scores, setScores] = useState([]);
-  const isTerminatedRef = useRef(false);
+  const [isTerminated, setIsTerminated] = useState(false);
   const [abortController, setAbortController] = useState(null);
 
   const terminateOutput = () => {
-    isTerminatedRef.current = true;
+    setIsTerminated(true);
     setLoading(false);
     // Abort the fetch request
     if (abortController) {
       abortController.abort();
-      setAbortController(null);
     }
     setMessages((prevMessages) => {
       const updatedMessages = [...prevMessages];
@@ -32,12 +117,12 @@ const useChatMessages = () => {
   const appendTextSlowly = async (textToAppend) => {
     const chunksize = 6;
     for (let i = 0; i < textToAppend.length; i += chunksize) {
-      if (isTerminatedRef.current) {
+      if (isTerminated) {
         break;
       }
       await new Promise((resolve) => setTimeout(resolve, 2)); // Adjust speed as needed
       setMessages((prevMessages) => {
-        if (isTerminatedRef.current) {
+        if (isTerminated) {
           return prevMessages; // If is ended, do not update the message
         }
         const updatedMessages = [...prevMessages];
@@ -69,7 +154,7 @@ const useChatMessages = () => {
 
       setLoading(true);
       setError(null);
-      isTerminatedRef.current = false;
+      setIsTerminated(false);
 
       const controller = new AbortController();
       setAbortController(controller);
@@ -123,7 +208,7 @@ const useChatMessages = () => {
         let sourcesBuffer = ""; // Initialize buffer for sources
         const endMarker = "<END_OF_ANSWER>";
         while (!done) {
-          if (isTerminatedRef.current) {
+          if (isTerminated) {
             console.log("Output terminated by user.");
             reader.cancel(); // Cancel the reader
             break; // Exit the loop
@@ -164,6 +249,11 @@ const useChatMessages = () => {
               sourcesBuffer += chunk;
             }
           }
+        }
+
+        if (isTerminated) {
+          console.log("Output terminated by user.");
+          return;
         }
 
         //  parse sourcesBuffer
@@ -205,7 +295,7 @@ const useChatMessages = () => {
 
       setLoading(true);
       setError(null);
-      isTerminatedRef.current = false;
+      setIsTerminated(false);
 
       // Create a new AbortController
       const controller = new AbortController();
@@ -246,7 +336,7 @@ const useChatMessages = () => {
         const endMarker = "<END_OF_ANSWER>";
 
         while (!done) {
-          if (isTerminatedRef.current) {
+          if (isTerminated) {
             console.log("Output terminated by user.");
             reader.cancel(); // Cancel the reader
             break; // Exit the loop
@@ -289,7 +379,7 @@ const useChatMessages = () => {
           }
         }
 
-        if (isTerminatedRef.current) {
+        if (isTerminated) {
           console.log("Output terminated by user.");
           return;
         }
@@ -337,6 +427,8 @@ const useChatMessages = () => {
     setSources,
     scores,
     terminateOutput,
+    isTerminated,
+    setIsTerminated,
     abortController,
     setAbortController,
   };

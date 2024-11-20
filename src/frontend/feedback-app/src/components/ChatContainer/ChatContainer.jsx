@@ -86,10 +86,10 @@ const ChatContainer = ({
           <button onClick={handleVoiceInput} className="voice-button" disabled={loading}>
             <VuesaxTwotoneMicrophone1 className="icon-instance-node" />
           </button>
-          {/* <button onClick={handleSubmit} className="send-button" disabled={loading}>
+          <button onClick={handleSubmit} className="send-button" disabled={loading}>
             <OutlineArrowCircleUp className="outline-arrow-circle-up" color='var(--black)' />
-          </button> */}
-          <button 
+          </button>
+          {/* <button 
             onClick={loading ? terminateOutput : handleSubmit} 
             className="send-button"
             title={loading ? "Stop" : "Send"}
@@ -99,7 +99,7 @@ const ChatContainer = ({
             ) : (
               <OutlineArrowCircleUp className="outline-arrow-circle-up" color='var(--black)' />
             )}
-          </button>
+          </button> */}
         </div>
       </div>
       <div className="main-content">

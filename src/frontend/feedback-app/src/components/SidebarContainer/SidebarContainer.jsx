@@ -86,35 +86,36 @@ const usertypeOptions = [
   { value: 'TRADE_UNION', label: 'Trade Union' },
 ];
 
-const chainOptions = [
-  {value: 'conversational', label: 'Conversational Retrieval Chain'},
-  {value: 'retrievalqa', label: 'QA Retrieval Chain'}
-];
+// const chainOptions = [
+//   {value: 'conversational', label: 'Conversational Retrieval Chain'},
+//   {value: 'retrievalqa', label: 'QA Retrieval Chain'}
+// ];
 
-const modelOptions = [
-  { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
-  { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
-  { value: 'gpt-4o', label: 'GPT-4o' },
-];
+// const modelOptions = [
+//   { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+//   { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+//   { value: 'gpt-4o', label: 'GPT-4o' },
+// ];
 
-const searchTypeOptions = [
-  { value: 'similarity', label: 'Similarity' },
-  { value: 'mmr', label: 'MMR (Maximal Marginal Relevance)' },
-];
+// const searchTypeOptions = [
+//   { value: 'similarity', label: 'Similarity' },
+//   { value: 'mmr', label: 'MMR (Maximal Marginal Relevance)' },
+// ];
 
-const fetchKOptions = [20, 30, 40];
+// const fetchKOptions = [20, 30, 40];
 
 export default function SidebarContainer({ setSelectedTopic, setSelectedUsertype, setSelectedChain, setSelectedModel, setSearchOptions }) {
   const theme = useTheme();
   const [first, setFirst] = useState('');
   const [usertype, setUsertype] = useState('');
-  const [chain, setChain] = useState('retrievalqa');
-  const [model, setModel] = useState('gpt-4o-mini');
-  const [searchType, setSearchType] = useState('similarity');
-  const [k, setK] = useState(5);
-  const [fetchK, setFetchK] = useState(20);
-  const [lambdaMult, setLambdaMult] = useState(0.5);
-  const [scoreThreshold, setScoreThreshold] = useState(0.8);
+  const [k, setK] = useState(15);
+  // const [chain, setChain] = useState('retrievalqa');
+  // const [model, setModel] = useState('gpt-4o');
+  // const [searchType, setSearchType] = useState('similarity');
+  
+  // const [fetchK, setFetchK] = useState(20);
+  // const [lambdaMult, setLambdaMult] = useState(0.5);
+  // const [scoreThreshold, setScoreThreshold] = useState(0.8);
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const firstOptions = ['Any', ...Object.values(topic_dict)];
@@ -127,17 +128,17 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedUsertype
     setUsertype(event.target.value);
   };
 
-  const handleChainChange = (event) => {
-    setChain(event.target.value);
-  }
+  // const handleChainChange = (event) => {
+  //   setChain(event.target.value);
+  // }
 
-  const handleModelChange = (event) => {
-    setModel(event.target.value);
-  };
+  // const handleModelChange = (event) => {
+  //   setModel(event.target.value);
+  // };
 
-  const handleSearchTypeChange = (event) => {
-    setSearchType(event.target.value);
-  };
+  // const handleSearchTypeChange = (event) => {
+  //   setSearchType(event.target.value);
+  // };
 
   const handleSubmit = () => {
     const topic = first === 'Any' ? null : first;
@@ -146,15 +147,15 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedUsertype
     console.log(topic);
     setSelectedUsertype(selectedUsertype);
     console.log(selectedUsertype);
-    setSelectedChain(chain);
-    setSelectedModel(model);
+    // setSelectedChain(chain);
+    // setSelectedModel(model);
     setSearchOptions({
-      searchType,
+      // searchType,
       search_kwargs: {
         k,
-        fetch_k: searchType === 'mmr' ? fetchK : undefined,
-        lambda_mult: searchType === 'mmr' ? lambdaMult : undefined,
-        score_threshold: searchType === 'similarity_score_threshold' ? scoreThreshold : undefined,
+        // fetch_k: searchType === 'mmr' ? fetchK : undefined,
+        // lambda_mult: searchType === 'mmr' ? lambdaMult : undefined,
+        // score_threshold: searchType === 'similarity_score_threshold' ? scoreThreshold : undefined,
       }
     });
     setOpenSnackbar(true); // open Snackbar
@@ -246,7 +247,7 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedUsertype
               </Select>
             </FormControl> */}
             {/* Model */}
-            <FormControl className="form-control">
+            {/* <FormControl className="form-control">
               <InputLabel id="model-select-label">Model</InputLabel>
               <Select
                 labelId="model-select-label"
@@ -262,9 +263,9 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedUsertype
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
+            </FormControl> */}
             {/* Search Type */}
-            <FormControl className="form-control">
+            {/* <FormControl className="form-control">
               <InputLabel id="search-type-select-label">Search Type</InputLabel>
               <Select
                 labelId="search-type-select-label"
@@ -332,7 +333,23 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedUsertype
                 fullWidth
                 margin="normal"
               />
-            )}
+            )} */}
+            {/* Number of Results */}
+            <TextField
+              label="Number of Returned Sources (Recommend 5-30)"
+              type="text"
+              value={k === 0 || k ? k : ""}
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10);
+                setK(Number.isNaN(value) ? "" : value);
+              }}
+              inputProps={{
+                inputMode: "numeric",
+                pattern: "[0-9]*",
+              }}
+              fullWidth
+              margin="normal"
+            />
             <Button className="submit-button" variant="contained" color="primary" onClick={handleSubmit}>
               Submit
             </Button>
@@ -341,7 +358,7 @@ export default function SidebarContainer({ setSelectedTopic, setSelectedUsertype
       </Accordion>
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <div className="title">Keyword Search</div>
+          <div className="title">Search for Initiatives of Interest</div>
         </AccordionSummary>
         <AccordionDetails>
           <div className="keyword-search-box">

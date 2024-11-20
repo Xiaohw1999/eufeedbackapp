@@ -93,6 +93,12 @@ print("Setting up embeddings, vectors, and memory...")
 embeddings = OpenAIEmbeddings(openai_api_key=api_key, 
                               model="text-embedding-3-small") # define embeddings to text-embedding-3-small
 
+'''set up mmr method'''
+# retriever = vectors.as_retriever(
+#     search_type='mmr',
+#     search_kwargs={'k': 5, 'lambda_mult': 0.1,}
+#     )
+
 # Initialize vector search with pre-filter
 vectors = MongoDBAtlasVectorSearch(
     collection=collection, 
@@ -188,6 +194,54 @@ def create_retrieval_qa_chain(llm, retriever):
 
 ''' Score Function Design, design a evaluation method to evaluate the quality and relevance of query, answer and source documents'''
 
+# # define templates for evaluation
+# scoring_prompt_template = """
+# Please evaluate the following question, answer, and source data based on three dimensions. For each dimension, provide a score from 2 to 10 according to the provided criteria.
+
+# ### Dimension 1: Relevance between the question and the answer
+# - **2 points**: The answer has no relevance to the question.
+# - **4 points**: The answer has minimal relevance but is mostly unrelated to the question.
+# - **6 points**: The answer is moderately relevant to the question but has some discrepancies.
+# - **8 points**: The answer is mostly relevant to the question with only minor omissions or irrelevant information.
+# - **10 points**: The answer is fully relevant and directly addresses the user's question.
+
+# ### Dimension 2: Relevance between the question and the source data
+# - **2 points**: The source data has no relevance to the question.
+# - **4 points**: The source data has minimal relevance but is mostly unrelated to the question.
+# - **6 points**: The source data is moderately relevant but contains some irrelevant information.
+# - **8 points**: The source data is mostly relevant to the question with only minor irrelevant information.
+# - **10 points**: The source data is fully relevant and directly addresses the user's question.
+
+# ### Dimension 3: Alignment between the answer and the source data
+# - **2 points**: The answer has no alignment with the source data.
+# - **4 points**: The answer has minimal alignment with the source data but is mostly unrelated.
+# - **6 points**: The answer is moderately aligned with the source data but contains inaccuracies or inconsistencies.
+# - **8 points**: The answer is mostly aligned with the source data but has minor omissions or slight inaccuracies.
+# - **10 points**: The answer is fully aligned and accurate based on the source data.
+
+# ### Task:
+# Evaluate the following:
+
+# **User question**: {question}
+# **Generated answer**: {answer}
+# **Source data**: {source}
+
+# Please provide only the score for each dimension as a number between 2 and 10.
+# Example: 0, 0, 0
+# """
+
+# scoring_llm = ChatOpenAI(temperature=0.0, model_name="gpt-4o-mini", openai_api_key=api_key)
+# scoring_prompt = PromptTemplate(
+#             input_variables=["question", "answer", "source"],
+#             template=scoring_prompt_template
+#         )
+# combined_scoring_chain = LLMChain(llm=scoring_llm, prompt=scoring_prompt)
+
+# # support function for extracting scores from the response
+# def extract_scores(response_text):
+#     scores = re.findall(r'\b\d+\b', response_text)
+#     return [int(score) for score in scores] if scores else None
+
 @app.post("/query")
 async def get_feedback(request: Request, background_tasks: BackgroundTasks):
     try:
@@ -196,7 +250,7 @@ async def get_feedback(request: Request, background_tasks: BackgroundTasks):
         topic = data.get("topic")
         usertype = data.get("userType")
         chain_type = data.get("chain_type", "retrievalqa")
-        model_name = data.get("model_name", "gpt-4o-mini")
+        model_name = data.get("model_name", "gpt-4o")
         search_type = data.get("search_type", "similarity")
         search_kwargs = data.get("search_kwargs", {'k': 15})
         if not query:
@@ -218,6 +272,22 @@ async def get_feedback(request: Request, background_tasks: BackgroundTasks):
             search_type=search_type,
             search_kwargs=search_kwargs
         )
+        
+        # # Select the appropriate chain based on the request
+        # if chain_type == "conversational":
+        #     chain = create_conversational_chain(llm, retriever)
+        #     response = chain.invoke({"question": query, "chat_history": []})
+        #     answer = response.get('answer', 'No answer found')
+        # elif chain_type == "retrievalqa":
+        #     chain = create_retrieval_qa_chain(llm, retriever)
+        #     response = chain.invoke({"query": query})
+        #     answer = response.get('result', 'No answer found')
+        
+        # # Log the raw response for debugging  
+        # logger.info(f"Response: {response}")
+
+        # source_documents = response.get('source_documents', [])
+        # sources = [{"text": doc.page_content, "metadata": doc.metadata} for doc in source_documents]
         
         ''' Apply streaming output'''
         # Initialize the appropriate chain with streaming callbacks
@@ -264,6 +334,36 @@ async def get_feedback(request: Request, background_tasks: BackgroundTasks):
                 logger.error(f"Error during streaming: {e}")
                 
         return StreamingResponse(stream_response(), media_type="text/plain")
+
+        '''
+        # implement scoreing chain
+        source_text = "; ".join([doc["text"] for doc in sources])
+        scoring_response = combined_scoring_chain.invoke({
+            "question": query,
+            "answer": answer,
+            "source": source_text
+        })
+        print('scoring_response', scoring_response["text"])
+        scores = extract_scores(scoring_response["text"])
+        if scores and len(scores) == 3:
+            score_qa, score_qs, score_as = scores
+        else:
+            raise HTTPException(status_code=500, detail="Failed to extract scores from GPT response.")
+        
+        # Log the scores
+        logging.info(f"Scores: QA - {score_qa}, QS - {score_qs}, AS - {score_as}")
+        '''
+
+        
+        # return {
+        #     "response": answer,
+        #     "sources": sources,
+        #     # "scores": {
+        #     #     "question_answer_relevance": score_qa,
+        #     #     "question_source_relevance": score_qs,
+        #     #     "answer_source_alignment": score_as
+        #     # }
+        # }
 
     except Exception as e:
         logger.error(f"Error processing request: {e}", exc_info=True)

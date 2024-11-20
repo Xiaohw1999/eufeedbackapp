@@ -11,3 +11,4 @@ streamlit==1.35.0
 simsimd==3.7.7
 pandas==2.2.1
 pymupdf==1.24.10
+locust==2.32.3

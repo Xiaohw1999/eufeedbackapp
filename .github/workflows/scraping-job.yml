@@ -2,9 +2,10 @@ name: Monthly Scraping Job
 
 # Controls when the action will run, which is on the first day of every month at midnight (00:00) Switzerland time
 on:
-  schedule:
-    - cron: '0 22 5 * *'  # This represents 22:00 UTC on the 2nd day of every month (which is 00:00 in Switzerland)
-    - cron: '0 22 25 * *'
+  # schedule:
+  #   - cron: '0 22 5 * *'  # This represents 22:00 UTC on the 2nd day of every month (which is 00:00 in Switzerland)
+  #   - cron: '0 22 25 * *'
+  workflow_dispatch:
 
 jobs:
   scraping_and_processing:
